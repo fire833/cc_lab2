@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from commands.commands import new_parser, runner
+from commands import new_parser, runner
 
 def main():
 	p = new_parser()
