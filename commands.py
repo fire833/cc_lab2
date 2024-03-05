@@ -7,6 +7,7 @@ import os
 import random
 import csv
 import json
+from templates.base import template as tmplbase
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 2 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -19,7 +20,7 @@ def new_parser():
 
 	gen = sub.add_parser("generate")
 	gen.add_argument("--pattern", help="Provide the pattern you want to generate against (should be a string with spaces)", type=str, dest="pattern")
-	gen.add_argument("--template", help="Provide the template you want to generate from, current values are (v1)", type=str, default="v1", dest="template")
+	gen.add_argument("--template", help="Provide the template you want to generate from, current values are (v1)", type=str, default="base", dest="template")
 	gen.add_argument("--outputs", help="Provide the output location of the generated program source.", type=str, default="./prog.c", dest="outputs")
 	gen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
 	gen.add_argument("--compiler", help="Provide the path/name of your desired compiler.", type=str, default="gcc", dest="compiler")
@@ -61,6 +62,7 @@ def runner(args: ArgumentParser):
 		return run_tests([])
 
 templates = {
+	"base": tmplbase,
 }
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
