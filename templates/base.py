@@ -57,7 +57,7 @@ int *parse_input(char* input, int parsed_len) {
 	return output;
 }
 
-permute(float *in, float *out) {
+void permute(float *in, float *out) {
 	#ifdef _ARM
 	neon()
 	#else
