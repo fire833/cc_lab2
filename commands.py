@@ -67,28 +67,13 @@ templates = {
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
 	if templates[template]:
-		values = []
-		arg_count = 0
-
-		for s in pattern.split(" "):
-			values.append([int(arg) for arg in s.split(",")])
-
-		for outer in values:
-			for v in outer:
-				arg_count += 1
-
-		mult_pairs = len(values)
-
-		unroll_lens = []
-		urn_len = unroll_len
-		while urn_len > 0:
-			unroll_lens.append(urn_len)
-			urn_len //= 2
+		values: [(int, int)] = [(i, int(arg)) for i, arg in enumerate(pattern.split(","))]
+		arg_count = len(values)
 
 		env = jinja2.Environment()
 		t = env.from_string(templates[template])
 		f = open(file=outputs, mode="w")
-		f.write(t.render(mult_pairs=mult_pairs, arg_count=arg_count, sums=values, unroll_len=unroll_len, unroll_lens=unroll_lens))
+		f.write(t.render(arg_count=arg_count, values=values))
 		f.close()
 
 		args = [compiler, "-O3", "-Wall", "-o", output]

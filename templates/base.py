@@ -5,6 +5,8 @@ template = """
 #include <string.h>
 #include <time.h>
 
+const int arg_count = {{ arg_count }};
+
 int *parse_input(char* input, int parsed_len) {
 	int index = 0;
 	int *output = (int *)calloc(parsed_len, sizeof(int));
@@ -57,40 +59,36 @@ int *parse_input(char* input, int parsed_len) {
 	return output;
 }
 
-void permute(float *in, float *out) {
-	#ifdef _ARM
-	neon()
-	#else
-	avx()
-	#endif
+void permute(int *in, int *out) {
+	{% for val in values %}out[{{ val[0] }}] = in[{{ val[1] }}];
+	{% endfor %}
 }
 
 int main(int argc, char **argv) {
 	if (argc != 3) {
-		printf("{\\"error\\": \\"3 arguments are required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}");
+		printf("{\\"error\\": \\"2 arguments required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}");
 		exit(1);
 	}
 
 	char *none;
   	int input_int_len = strtol(argv[1], &none, 10);
-	int output_int_len = (input_int_len - arg_count + 1);
 
-	if (input_int_len < arg_count) {
-		printf("{\\"error\\": \\"must provide at least as many inputs as there are arguments (%d)\\",\\"code\\":1}", arg_count);
+	if (input_int_len != arg_count) {
+		printf("{\\"error\\": \\"must provide as many inputs as there are arguments (%d)\\",\\"code\\":1}", arg_count);
 		exit(1);
 	}
 
 	int *input = parse_input(argv[2], input_int_len);
-	int *output = (int*)calloc(output_int_len, sizeof(int));
+	int *output = (int*)calloc(input_int_len, sizeof(int));
 	clock_t start, end;
 
 	start = clock();
-	permute(output_int_len, input, output);
+	permute(input, output);
 	end = clock();
 
 	printf("{\\"values\\": [");
-	for (int i = 0; i < output_int_len; i++) {
-		if (i == output_int_len - 1) {
+	for (int i = 0; i < input_int_len; i++) {
+		if (i == input_int_len - 1) {
 			printf("%d],", output[i]);
 		} else {
     		printf("%d,", output[i]);
