@@ -8,6 +8,7 @@ import random
 import csv
 import json
 from templates.base import template as tmplbase
+from templates.asm import template as tmplasm
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 2 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -63,6 +64,7 @@ def runner(args: ArgumentParser):
 
 templates = {
 	"base": tmplbase,
+	"asm": tmplasm,
 }
 
 def generate(pattern: str, template: str, outputs: str, output: str, compiler: str, asm: bool, omp: bool, unroll_len: int):
