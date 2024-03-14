@@ -2,3 +2,5 @@ __pycache__
 prog.c
 target
 prog
+*.s
+*.S

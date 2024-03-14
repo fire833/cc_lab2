@@ -1,28 +1,11 @@
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InstructionBlock {
     Single(u32),
-    Four(u32, u32, u32, u32),
-    Eight(u32, u32, u32, u32, u32, u32, u32, u32),
-    Sixteen(
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-        u32,
-    ),
+    Four(u32),
+    Eight(u32),
+    Sixteen(u32),
 }
 
 /// A shiftmask wrapper struct.
@@ -52,35 +35,29 @@ impl ShiftMask {
             set.push(InstructionBlock::Single(*val));
         }
 
-        refset = set.clone();
+        for simd_count in vec![4, 8, 16].iter() {
+            refset = set.clone();
 
-        // Try and merge 4 tuples
-        for (index, instr) in refset.iter().rev().skip(3).enumerate() {
-            // If we have a self-permutation, then we can reduce into a new instruction.
-            if self.range_self_permutes(&mut check, index as u32, index as u32 + 4) {
-                // let new_instr = InstructionBlock::Four(
-                //     refset[index],
-                //     refset[index + 1],
-                //     refset[index + 2],
-                //     refset[index + 3],
-                // );
+            for (index, _) in refset.iter().rev().skip(simd_count - 1).rev().enumerate() {
+                // If we have a self-permutation, then we can reduce into a new instruction.
+                if self.range_self_permutes(
+                    &mut check,
+                    index as u32,
+                    index as u32 + (*simd_count as u32),
+                ) {
+                    if *simd_count == 4 {
+                        set.insert(index, InstructionBlock::Four(self.values[index]));
+                    } else if *simd_count == 8 {
+                        set.insert(index, InstructionBlock::Eight(self.values[index]));
+                    } else {
+                        set.insert(index, InstructionBlock::Sixteen(self.values[index]));
+                    }
 
-                // set.insert(index, new_instr);
-                set.remove(index + 1);
-                set.remove(index + 2);
-                set.remove(index + 3);
-                set.remove(index + 4);
+                    for _ in 0..(*simd_count as u32) {
+                        set.remove(index + 1);
+                    }
+                }
             }
-        }
-
-        // Try and merge 8 tuples
-        for (index, instr) in refset.iter().rev().skip(7).enumerate() {
-            if self.range_self_permutes(&mut check, index as u32, index as u32 + 8) {}
-        }
-
-        // Try and merge 16 tuples
-        for (index, instr) in refset.iter().rev().skip(15).enumerate() {
-            if self.range_self_permutes(&mut check, index as u32, index as u32 + 16) {}
         }
 
         set
@@ -92,8 +69,8 @@ impl ShiftMask {
     fn range_self_permutes(&self, set: &mut HashSet<u32>, lower: u32, upper: u32) -> bool {
         set.clear();
 
-        // If we indices that are out of bounds, clear out.
-        if lower < 0 || upper > (self.values.len() - 1) as u32 {
+        // If we indices that are out of bounds, bail out.
+        if upper > (self.values.len() - 1) as u32 {
             return false;
         }
 
@@ -109,4 +86,13 @@ impl ShiftMask {
 
         true
     }
+}
+
+#[test]
+fn test_dp() {
+    let mask = ShiftMask::new(vec![1, 2, 3, 0, 4, 7, 5, 6]);
+    assert_eq!(
+        mask.optimize_to_blocks(),
+        vec![InstructionBlock::Four(0), InstructionBlock::Four(4)]
+    );
 }
