@@ -1,7 +1,7 @@
 use core::mem::size_of;
 use std::mem::transmute;
 
-use libc::{c_int, c_void, size_t};
+use libc::{c_int, c_void};
 
 pub struct Playground {
     raw_memory: *mut c_void,
