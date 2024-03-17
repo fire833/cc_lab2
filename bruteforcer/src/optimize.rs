@@ -51,6 +51,36 @@ impl FourInstruction {
             value4,
         }
     }
+
+    fn new_from_instr(instrs: Vec<InstructionBlock>) -> Option<Self> {
+        if instrs.len() != 4 {
+            return None;
+        }
+
+        let (f1, f2, f3, f4);
+
+        match instrs[0] {
+            InstructionBlock::Single(s) => f1 = s,
+            _ => return None,
+        }
+
+        match instrs[1] {
+            InstructionBlock::Single(s) => f2 = s,
+            _ => return None,
+        }
+
+        match instrs[2] {
+            InstructionBlock::Single(s) => f3 = s,
+            _ => return None,
+        }
+
+        match instrs[3] {
+            InstructionBlock::Single(s) => f4 = s,
+            _ => return None,
+        }
+
+        Some(Self::new(f1, f2, f3, f4))
+    }
 }
 
 // Returns the pairing of index to mapped value for each index.
@@ -69,6 +99,11 @@ pub struct EightInstruction {
 impl EightInstruction {
     const fn new(value1: FourInstruction, value2: FourInstruction) -> Self {
         Self { value1, value2 }
+    }
+
+    fn new_from_instr(instrs: Vec<InstructionBlock>) -> Option<EightInstruction> {
+        let size = 0;
+        None
     }
 }
 
@@ -110,6 +145,17 @@ pub enum InstructionBlock {
     Four(FourInstruction),
     Eight(EightInstruction),
     Sixteen(SixteenInstruction),
+}
+
+impl InstructionBlock {
+    fn len(&self) -> usize {
+        match self {
+            InstructionBlock::Single(_) => 1,
+            InstructionBlock::Four(_) => 2,
+            InstructionBlock::Eight(_) => 8,
+            InstructionBlock::Sixteen(_) => 16,
+        }
+    }
 }
 
 impl Into<Vec<SingleInstruction>> for InstructionBlock {
@@ -154,31 +200,6 @@ impl ShiftMask {
 
         for simd_count in vec![4, 8, 16].iter() {
             let mut i = 0;
-
-            while i <= set1.len() - *simd_count {
-                if ShiftMask::chunk_self_permutes(
-                    &mut check,
-                    &mut store_vec,
-                    &set1.as_slice()[i..i + *simd_count],
-                ) {
-                    // match *simd_count {
-                    //     4 => set2.push(InstructionBlock::Four(FourInstruction::new(
-                    //         set1[i],
-                    //         set1[i + 1],
-                    //         set1[i + 2],
-                    //         set1[i + 3],
-                    //     ))),
-                    //     8 => {}
-                    //     16 => {}
-                    //     _ => {}
-                    // }
-
-                    i += *simd_count;
-                } else {
-                    set2.push(set1[i]);
-                    i += 1;
-                }
-            }
 
             let tmp = set1.clone();
             set1 = set2;
