@@ -17,5 +17,9 @@
  */
 
 pub enum Instruction_x86_64 {
-    Move,
+    MoveQ(),
+}
+
+pub enum Registers_x86_64 {
+    EAX,
 }
