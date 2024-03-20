@@ -1,6 +1,8 @@
 __pycache__
 prog.c
+prog.cu
 target
 prog
 *.s
 *.S
+test

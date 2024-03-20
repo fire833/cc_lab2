@@ -1,5 +1,9 @@
 
-template = """
+template = {
+	"compiler_prefix": ["clang", "-O3", "-Wall"],
+	"program_output": "prog.c",
+
+	"template": """
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -99,3 +103,5 @@ int main(int argc, char **argv) {
 }
 
 """
+}
+
