@@ -11,7 +11,7 @@ template = {
 
 const int arg_count = {{ arg_count }};
 
-int *parse_input(char* input, int parsed_len) {
+inline int *parse_input(char* input, int parsed_len) {
 	int index = 0;
 	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
@@ -63,7 +63,7 @@ int *parse_input(char* input, int parsed_len) {
 	return output;
 }
 
-extern void permute(int *in, int *out);
+extern inline void permute(int *in, int *out);
 
 int main(int argc, char **argv) {
 	if (argc != 3) {

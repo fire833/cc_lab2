@@ -12,7 +12,7 @@ template = {
 const int arg_count = {{ arg_count }};
 static const int mask_host[{{ arg_count }}] = { {% for val in values %}{{val[1]}}{% if not values|last == val %}, {% endif %}{% endfor %} }; 
 
-int *parse_input(char* input, int parsed_len) {
+inline int *parse_input(char* input, int parsed_len) {
 	int index = 0;
 	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
