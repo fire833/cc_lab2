@@ -1,60 +1,14 @@
-use std::collections::HashSet;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Mask {
-    mask: u16,
-}
-
-impl Mask {
-    const fn new() -> Self {
-        Self { mask: 0x0000 }
-    }
-
-    fn set_ith(&mut self, i: u8) {
-        if i < 16 {
-            let mask = (0b0000000000000001 as u16) << i;
-            self.mask |= mask;
-        }
-    }
-
-    const fn get_ith(&self, i: u8) -> bool {
-        if i < 16 {
-            let mask = (0b0000000000000001 as u16) << i;
-            self.mask & mask == mask
-        } else {
-            false
-        }
-    }
-}
-
-#[test]
-fn test_mask() {
-    let mut m1 = Mask::new();
-    m1.set_ith(3);
-    m1.set_ith(0);
-    m1.set_ith(9);
-    assert_eq!(true, m1.get_ith(3));
-    assert_eq!(true, m1.get_ith(0));
-    assert_eq!(false, m1.get_ith(11));
-    assert_eq!(false, m1.get_ith(15));
-    assert_eq!(0b0000001000001001, m1.mask);
-}
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SingleInstruction {
     index: u32,
     value: u32,
-
-    mask: Mask,
 }
 
 impl SingleInstruction {
     const fn new(index: u32, value: u32) -> Self {
-        Self {
-            index,
-            value,
-            mask: Mask::new(),
-        }
+        Self { index, value }
     }
 }
 
@@ -63,7 +17,6 @@ impl From<(u32, u32)> for SingleInstruction {
         Self {
             index: value.0,
             value: value.1,
-            mask: Mask::new(),
         }
     }
 }
@@ -74,8 +27,6 @@ pub struct FourInstruction {
     value2: SingleInstruction,
     value3: SingleInstruction,
     value4: SingleInstruction,
-
-    mask: Mask,
 }
 
 impl FourInstruction {
@@ -90,7 +41,6 @@ impl FourInstruction {
             value2,
             value3,
             value4,
-            mask: Mask::new(),
         }
     }
 
@@ -136,22 +86,29 @@ impl Into<Vec<SingleInstruction>> for FourInstruction {
 pub struct EightInstruction {
     value1: FourInstruction,
     value2: FourInstruction,
-
-    mask: Mask,
 }
 
 impl EightInstruction {
     const fn new(value1: FourInstruction, value2: FourInstruction) -> Self {
-        Self {
-            value1,
-            value2,
-            mask: Mask::new(),
-        }
+        Self { value1, value2 }
     }
 
     fn new_from_instr(instrs: Vec<InstructionBlock>) -> Option<EightInstruction> {
-        let size = 0;
-        None
+        let mut full_vec = vec![];
+
+        for blk in instrs.iter() {
+            let mut cloned: Vec<SingleInstruction> = blk.clone().into();
+            full_vec.append(&mut cloned);
+        }
+
+        if full_vec.len() != 8 {
+            return None;
+        }
+
+        Some(EightInstruction::new(
+            FourInstruction::new(full_vec[0], full_vec[1], full_vec[2], full_vec[3]),
+            FourInstruction::new(full_vec[4], full_vec[5], full_vec[6], full_vec[7]),
+        ))
     }
 }
 
@@ -169,17 +126,35 @@ impl Into<Vec<SingleInstruction>> for EightInstruction {
 pub struct SixteenInstruction {
     value1: EightInstruction,
     value2: EightInstruction,
-
-    mask: Mask,
 }
 
 impl SixteenInstruction {
     const fn new(value1: EightInstruction, value2: EightInstruction) -> Self {
-        Self {
-            value1,
-            value2,
-            mask: Mask::new(),
+        Self { value1, value2 }
+    }
+
+    fn new_from_instr(instrs: Vec<InstructionBlock>) -> Option<SixteenInstruction> {
+        let mut full_vec = vec![];
+
+        for blk in instrs.iter() {
+            let mut cloned: Vec<SingleInstruction> = blk.clone().into();
+            full_vec.append(&mut cloned);
         }
+
+        if full_vec.len() != 16 {
+            return None;
+        }
+
+        Some(SixteenInstruction::new(
+            EightInstruction::new(
+                FourInstruction::new(full_vec[0], full_vec[1], full_vec[2], full_vec[3]),
+                FourInstruction::new(full_vec[4], full_vec[5], full_vec[6], full_vec[7]),
+            ),
+            EightInstruction::new(
+                FourInstruction::new(full_vec[8], full_vec[9], full_vec[10], full_vec[11]),
+                FourInstruction::new(full_vec[12], full_vec[13], full_vec[14], full_vec[15]),
+            ),
+        ))
     }
 }
 
@@ -205,7 +180,7 @@ impl InstructionBlock {
     fn len(&self) -> usize {
         match self {
             InstructionBlock::Single(_) => 1,
-            InstructionBlock::Four(_) => 2,
+            InstructionBlock::Four(_) => 4,
             InstructionBlock::Eight(_) => 8,
             InstructionBlock::Sixteen(_) => 16,
         }
@@ -234,30 +209,29 @@ impl ShiftMask {
         Self { values }
     }
 
-    pub const SIMD_COUNTS: [u8; 3] = [4, 8, 16];
+    // pub const SIMD_COUNTS: [u8; 3] = [4, 8, 16];
+    pub const SIMD_COUNTS: [u8; 2] = [4, 8];
 
-    fn optimize_to_blocks(&self) -> Vec<InstructionBlock> {
+    pub fn optimize_to_blocks(&self) -> VecDeque<InstructionBlock> {
         // check through all 4 blocks
-        let mut set1: Vec<InstructionBlock> = vec![];
-        let mut set2: Vec<InstructionBlock> = vec![];
+        let mut set1: VecDeque<InstructionBlock> = VecDeque::new();
+        let mut set2: VecDeque<InstructionBlock> = VecDeque::new();
 
         let mut store_vec: Vec<SingleInstruction> = vec![];
 
         for (index, val) in self.values.iter().enumerate() {
-            set1.push(InstructionBlock::Single(SingleInstruction::new(
+            set1.push_back(InstructionBlock::Single(SingleInstruction::new(
                 index as u32,
                 *val,
             )));
         }
-
-        let mut output: &Vec<InstructionBlock> = &vec![];
 
         for simd_count in Self::SIMD_COUNTS.iter() {
             let mut sum = 0;
             let mut queue: Vec<InstructionBlock> = vec![];
 
             while set1.len() > 0 {
-                if let Some(instr) = set1.pop() {
+                if let Some(instr) = set1.pop_front() {
                     sum += instr.len() as u8;
                     queue.push(instr);
                 }
@@ -267,22 +241,68 @@ impl ShiftMask {
                 if sum == *simd_count {
                     // If we have a self permutation, then we need to merge
                     // these instructions in the queue to a higher order instruction.
-                    if Self::chunk_self_permutes(&mut store_vec, &queue, *simd_count) {}
+                    if Self::chunk_self_permutes(&mut store_vec, &queue, *simd_count) {
+                        match *simd_count {
+                            4 => {
+                                if let Some(four) = FourInstruction::new_from_instr(queue.clone()) {
+                                    set2.push_back(InstructionBlock::Four(four));
+                                    queue.clear();
+                                    sum = 0;
+                                }
+                            }
+                            8 => {
+                                if let Some(eight) = EightInstruction::new_from_instr(queue.clone())
+                                {
+                                    set2.push_back(InstructionBlock::Eight(eight));
+                                    queue.clear();
+                                    sum = 0;
+                                }
+                            }
+                            16 => {
+                                if let Some(sixteen) =
+                                    SixteenInstruction::new_from_instr(queue.clone())
+                                {
+                                    set2.push_back(InstructionBlock::Sixteen(sixteen));
+                                    queue.clear();
+                                    sum = 0;
+                                }
+                            }
+                            _ => {}
+                        }
+                    } else {
+                        let elem = queue.remove(0);
+                        sum -= elem.len() as u8;
+                        set2.push_back(elem);
+                    }
+                    // If we have overrun the sum, then we need to pop the front element
+                    // from the queue and assign it to set 2.
+                } else if sum > *simd_count {
+                    let elem = queue.remove(0);
+                    sum -= elem.len() as u8;
+                    set2.push_back(elem);
+                    // If we have no elements left in the set, then move the
+                    // queue over to the output set.
+                } else if set1.len() == 0 {
+                    while queue.len() > 0 {
+                        let elem = queue.remove(0);
+                        set2.push_back(elem);
+                    }
+                } else if sum < *simd_count {
+                    continue;
                 }
             }
 
             set1 = set2;
-            set2 = vec![];
-            output = &set2;
+            set2 = VecDeque::new();
         }
 
-        output.to_vec()
+        set1
     }
 
     // Returns whether a range of elements "self permutes" on
     // themselves, I.e. the array subset that can be optimized
     // to a single SIMD instruction.
-    fn chunk_self_permutes(
+    pub fn chunk_self_permutes(
         full_vec: &mut Vec<SingleInstruction>,
         chunk: &Vec<InstructionBlock>,
         simd_count: u8,
@@ -294,36 +314,91 @@ impl ShiftMask {
             full_vec.append(&mut cloned);
         }
 
-        let mut min_src: u32 = 0;
-        let mut max_src: u32 = u32::MAX;
-        let mut min_dst: u32 = 0;
-        let mut max_dst: u32 = u32::MAX;
+        let mut min_src: i32 = i32::MAX;
+        let mut max_src: i32 = i32::MIN;
+        let mut min_dst: i32 = i32::MAX;
+        let mut max_dst: i32 = i32::MIN;
 
         for instr in full_vec.iter() {
-            if instr.index > min_src {
-                min_src = instr.index;
+            if (instr.index as i32) < min_src {
+                min_src = instr.index as i32;
             }
-            if instr.index < max_src {
-                max_src = instr.index;
+            if (instr.index as i32) > max_src {
+                max_src = instr.index as i32;
             }
-            if instr.value > min_dst {
-                min_dst = instr.value;
+            if (instr.value as i32) < min_dst {
+                min_dst = instr.value as i32;
             }
-            if instr.value < max_dst {
-                max_dst = instr.value;
+            if (instr.value as i32) > max_dst {
+                max_dst = instr.value as i32;
             }
         }
 
-        (max_src - min_src == (simd_count - 1) as u32)
-            && (max_dst - min_dst == (simd_count - 1) as u32)
+        (max_src - min_src == (simd_count - 1) as i32)
+            && (max_dst - min_dst == (simd_count - 1) as i32)
     }
 }
 
 #[test]
+fn test_self_permute() {
+    let mut tmp_vec: Vec<SingleInstruction> = vec![];
+
+    assert_eq!(
+        true,
+        ShiftMask::chunk_self_permutes(
+            &mut tmp_vec,
+            &vec![
+                InstructionBlock::Single(SingleInstruction::new(0, 30)),
+                InstructionBlock::Single(SingleInstruction::new(1, 29)),
+                InstructionBlock::Single(SingleInstruction::new(2, 28)),
+                InstructionBlock::Single(SingleInstruction::new(3, 27)),
+            ],
+            4
+        )
+    );
+
+    assert_eq!(
+        true,
+        ShiftMask::chunk_self_permutes(
+            &mut tmp_vec,
+            &vec![
+                InstructionBlock::Single(SingleInstruction::new(4, 1)),
+                InstructionBlock::Four(FourInstruction::new(
+                    SingleInstruction::new(0, 0),
+                    SingleInstruction::new(1, 7),
+                    SingleInstruction::new(2, 6),
+                    SingleInstruction::new(3, 4),
+                )),
+                InstructionBlock::Single(SingleInstruction::new(5, 3)),
+                InstructionBlock::Single(SingleInstruction::new(6, 2)),
+                InstructionBlock::Single(SingleInstruction::new(7, 5)),
+            ],
+            8
+        )
+    );
+}
+
+#[test]
 fn test_dp() {
-    let mask = ShiftMask::new(vec![1, 2, 3, 0, 4, 7, 5, 6]);
-    // assert_eq!(
-    //     mask.optimize_to_blocks(),
-    //     vec![InstructionBlock::Eight(1, 2, 3, 0, 4, 7, 5, 6)]
-    // );
+    let mask = ShiftMask::new(vec![1, 2, 3, 0, 4, 7, 5, 6, 8]);
+    assert_eq!(
+        mask.optimize_to_blocks(),
+        vec![
+            InstructionBlock::Eight(EightInstruction::new(
+                FourInstruction::new(
+                    SingleInstruction::new(0, 1),
+                    SingleInstruction::new(1, 2),
+                    SingleInstruction::new(2, 3),
+                    SingleInstruction::new(3, 0),
+                ),
+                FourInstruction::new(
+                    SingleInstruction::new(4, 4),
+                    SingleInstruction::new(5, 7),
+                    SingleInstruction::new(6, 5),
+                    SingleInstruction::new(7, 6),
+                ),
+            )),
+            InstructionBlock::Single(SingleInstruction::new(8, 8))
+        ]
+    );
 }
