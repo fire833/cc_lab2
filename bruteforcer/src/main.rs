@@ -1,6 +1,6 @@
 use playground::Playground;
 
-mod instructions;
+mod instructions_x86_64;
 mod optimize;
 mod playground;
 

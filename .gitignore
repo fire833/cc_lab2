@@ -6,3 +6,4 @@ prog
 *.s
 *.S
 test
+.gdb_history
