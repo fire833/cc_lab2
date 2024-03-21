@@ -2,22 +2,79 @@
 
 use std::fmt::Display;
 
+pub trait SerializeBitCode {
+    fn write_bytes(&self, bytes: &mut Vec<u8>);
+}
+
 /// Enumeration of the available X86_64 Instructions that we
 /// are utilizing for generating output programs. This is not
 /// a complete list of all instructions by ANY means.
 pub enum Instruction {
-    /// Move Quadword
+    Move(Operand, Operand),
     MoveQ(Operand, Operand),
     MoveL(Operand, Operand),
+    Xor(Operand, Operand),
     Return,
+    VPermPS(Operand, Operand, Operand),
+    VPermILPS(Operand, Operand, Operand),
+    VPermD(Operand, Operand, Operand),
+    VPMaskMovD(Operand, Operand, Operand),
+    VMovDQA(Operand, Operand),
 }
 
 impl Instruction {
     fn write_bytes(&self, program: &mut Vec<u8>) {
         match &self {
+            Instruction::Move(src, dst) => todo!(),
             Instruction::MoveQ(src, dst) => todo!(),
             Instruction::MoveL(src, dst) => todo!(),
             Instruction::Return => todo!(),
+            Instruction::Xor(src, dst) => todo!(),
+            Instruction::VPermPS(_, _, _) => todo!(),
+            Instruction::VPermD(_, _, _) => todo!(),
+            Instruction::VPMaskMovD(_, _, _) => todo!(),
+            Instruction::VMovDQA(_, _) => todo!(),
+            Instruction::VPermILPS(_, _, _) => todo!(),
+        }
+    }
+}
+
+impl Display for Instruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            Instruction::Move(src, dst) => write!(f, "mov {} {}", src, dst),
+            Instruction::MoveQ(src, dst) => write!(f, "movq {} {}", src, dst),
+            Instruction::MoveL(src, dst) => write!(f, "movl {} {}", src, dst),
+            Instruction::Return => write!(f, "ret"),
+            Instruction::Xor(src, dst) => write!(f, "xor {} {}", src, dst),
+            Instruction::VPermPS(reg1, reg2, reg3) => {
+                write!(f, "vpermps {} {} {}", reg1, reg2, reg3)
+            }
+            Instruction::VPermD(reg1, reg2, reg3) => write!(f, "vpermd {} {} {}", reg1, reg2, reg3),
+            Instruction::VPMaskMovD(reg1, reg2, reg3) => {
+                write!(f, "vpmaskmovd {} {} {}", reg1, reg2, reg3)
+            }
+            Instruction::VMovDQA(src, dst) => write!(f, "vmovdqa {} {}", src, dst),
+            Instruction::VPermILPS(src, dst, mask) => {
+                write!(f, "vpermilps {} {} {}", src, dst, mask)
+            }
+        }
+    }
+}
+
+impl SerializeBitCode for Instruction {
+    fn write_bytes(&self, bytes: &mut Vec<u8>) {
+        match &self {
+            Instruction::Move(_, _) => todo!(),
+            Instruction::MoveQ(_, _) => todo!(),
+            Instruction::MoveL(_, _) => todo!(),
+            Instruction::Xor(_, _) => todo!(),
+            Instruction::Return => todo!(),
+            Instruction::VPermPS(_, _, _) => todo!(),
+            Instruction::VPermILPS(_, _, _) => todo!(),
+            Instruction::VPermD(_, _, _) => todo!(),
+            Instruction::VPMaskMovD(_, _, _) => todo!(),
+            Instruction::VMovDQA(_, _) => todo!(),
         }
     }
 }
@@ -57,6 +114,19 @@ impl Display for Operand {
             Operand::ScaledDisplacedIndex(displ, reg, scalar) => {
                 write!(f, "{}(, {}, {})", displ, reg, scalar)
             }
+        }
+    }
+}
+
+impl SerializeBitCode for Operand {
+    fn write_bytes(&self, bytes: &mut Vec<u8>) {
+        match &self {
+            Operand::Immediate(_) => todo!(),
+            Operand::Register(_) => todo!(),
+            Operand::Memory(_) => todo!(),
+            Operand::Index(_, _) => todo!(),
+            Operand::ScaledIndex(_, _, _) => todo!(),
+            Operand::ScaledDisplacedIndex(_, _, _) => todo!(),
         }
     }
 }
@@ -140,6 +210,23 @@ pub enum Register {
     /// AVX Register 15
     YMM15,
 
+    XMM0,
+    XMM1,
+    XMM2,
+    XMM3,
+    XMM4,
+    XMM5,
+    XMM6,
+    XMM7,
+    XMM8,
+    XMM9,
+    XMM10,
+    XMM11,
+    XMM12,
+    XMM13,
+    XMM14,
+    XMM15,
+
     /// The EFLAGS register
     EFLAGS,
 }
@@ -190,6 +277,88 @@ impl Display for Register {
             Register::YMM14 => write!(f, "%ymm14"),
             Register::YMM15 => write!(f, "%ymm15"),
             Register::EFLAGS => write!(f, "%eflags"),
+            Register::XMM0 => write!(f, "%xmm0"),
+            Register::XMM1 => write!(f, "%xmm1"),
+            Register::XMM2 => write!(f, "%xmm2"),
+            Register::XMM3 => write!(f, "%xmm3"),
+            Register::XMM4 => write!(f, "%xmm4"),
+            Register::XMM5 => write!(f, "%xmm5"),
+            Register::XMM6 => write!(f, "%xmm6"),
+            Register::XMM7 => write!(f, "%xmm7"),
+            Register::XMM8 => write!(f, "%xmm8"),
+            Register::XMM9 => write!(f, "%xmm9"),
+            Register::XMM10 => write!(f, "%xmm10"),
+            Register::XMM11 => write!(f, "%xmm11"),
+            Register::XMM12 => write!(f, "%xmm12"),
+            Register::XMM13 => write!(f, "%xmm13"),
+            Register::XMM14 => write!(f, "%xmm14"),
+            Register::XMM15 => write!(f, "%xmm15"),
+        }
+    }
+}
+
+impl SerializeBitCode for Register {
+    fn write_bytes(&self, bytes: &mut Vec<u8>) {
+        match &self {
+            Register::RAX => todo!(),
+            Register::EAX => todo!(),
+            Register::RBX => todo!(),
+            Register::EBX => todo!(),
+            Register::RCX => todo!(),
+            Register::ECX => todo!(),
+            Register::RDX => todo!(),
+            Register::EDX => todo!(),
+            Register::RSP => todo!(),
+            Register::ESP => todo!(),
+            Register::RDI => todo!(),
+            Register::EDI => todo!(),
+            Register::RSI => todo!(),
+            Register::ESI => todo!(),
+            Register::RBP => todo!(),
+            Register::EBP => todo!(),
+            Register::RIP => todo!(),
+            Register::EIP => todo!(),
+            Register::R8 => todo!(),
+            Register::R9 => todo!(),
+            Register::R10 => todo!(),
+            Register::R11 => todo!(),
+            Register::R12 => todo!(),
+            Register::R13 => todo!(),
+            Register::R14 => todo!(),
+            Register::R15 => todo!(),
+            Register::YMM0 => todo!(),
+            Register::YMM1 => todo!(),
+            Register::YMM2 => todo!(),
+            Register::YMM3 => todo!(),
+            Register::YMM4 => todo!(),
+            Register::YMM5 => todo!(),
+            Register::YMM6 => todo!(),
+            Register::YMM7 => todo!(),
+            Register::YMM8 => todo!(),
+            Register::YMM9 => todo!(),
+            Register::YMM10 => todo!(),
+            Register::YMM11 => todo!(),
+            Register::YMM12 => todo!(),
+            Register::YMM13 => todo!(),
+            Register::YMM14 => todo!(),
+            Register::YMM15 => todo!(),
+            Register::XMM0 => todo!(),
+            Register::XMM1 => todo!(),
+            Register::XMM2 => todo!(),
+            Register::XMM3 => todo!(),
+            Register::XMM4 => todo!(),
+            Register::XMM5 => todo!(),
+            Register::XMM6 => todo!(),
+            Register::XMM7 => todo!(),
+            Register::XMM8 => todo!(),
+            Register::XMM9 => todo!(),
+            Register::XMM10 => todo!(),
+            Register::XMM11 => todo!(),
+            Register::XMM12 => todo!(),
+            Register::XMM13 => todo!(),
+            Register::XMM14 => todo!(),
+            Register::XMM15 => todo!(),
+            Register::EFLAGS => todo!(),
         }
     }
 }
