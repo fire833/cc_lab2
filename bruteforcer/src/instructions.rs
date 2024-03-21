@@ -16,8 +16,9 @@
 *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-pub enum Instruction_x86_64 {
+pub enum Instructions_x86_64 {
     MoveQ(),
+    MoveL(),
 }
 
 pub enum Registers_x86_64 {
