@@ -204,13 +204,38 @@ pub struct ShiftMask {
     values: Vec<u32>,
 }
 
+impl From<Vec<u32>> for ShiftMask {
+    fn from(value: Vec<u32>) -> Self {
+        Self { values: value }
+    }
+}
+
 impl ShiftMask {
+    #[allow(unused)]
     const fn new(values: Vec<u32>) -> Self {
         Self { values }
     }
 
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
     // pub const SIMD_COUNTS: [u8; 3] = [4, 8, 16];
     pub const SIMD_COUNTS: [u8; 2] = [4, 8];
+
+    pub fn permute_array_by_mask(&self, input: &Vec<u32>) -> Vec<u32> {
+        let mut output = vec![];
+
+        for _ in 0..input.len() {
+            output.push(0);
+        }
+
+        for (index, value) in self.values.iter().enumerate() {
+            output[*value as usize] = input[index];
+        }
+
+        output
+    }
 
     pub fn optimize_to_blocks(&self) -> VecDeque<InstructionBlock> {
         // check through all 4 blocks
@@ -337,6 +362,15 @@ impl ShiftMask {
         (max_src - min_src == (simd_count - 1) as i32)
             && (max_dst - min_dst == (simd_count - 1) as i32)
     }
+}
+
+#[test]
+fn test_canonical_permute() {
+    let mask = ShiftMask::new(vec![3, 2, 1, 0]);
+    assert_eq!(
+        vec![4, 3, 2, 1],
+        mask.permute_array_by_mask(&vec![1, 2, 3, 4])
+    )
 }
 
 #[test]

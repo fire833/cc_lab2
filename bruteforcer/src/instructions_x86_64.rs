@@ -9,32 +9,38 @@ pub trait SerializeBitCode {
 /// Enumeration of the available X86_64 Instructions that we
 /// are utilizing for generating output programs. This is not
 /// a complete list of all instructions by ANY means.
+#[allow(unused)]
 pub enum Instruction {
-    Move(Operand, Operand),
-    MoveQ(Operand, Operand),
-    MoveL(Operand, Operand),
-    Xor(Operand, Operand),
-    Return,
-    VPermPS(Operand, Operand, Operand),
-    VPermILPS(Operand, Operand, Operand),
-    VPermD(Operand, Operand, Operand),
-    VPMaskMovD(Operand, Operand, Operand),
-    VMovDQA(Operand, Operand),
+    MOV(Operand, Operand),
+    MOVQ(Operand, Operand),
+    MOVL(Operand, Operand),
+    XOR(Operand, Operand),
+    RET,
+    VPERMPS(Operand, Operand, Operand),
+    VPERMILPS(Operand, Operand, Operand),
+    VPERMD(Operand, Operand, Operand),
+    VPMASKMOVD(Operand, Operand, Operand),
+    VMOVDQA(Operand, Operand),
+    RDTSC,
 }
 
-impl Instruction {
+impl SerializeBitCode for Instruction {
     fn write_bytes(&self, program: &mut Vec<u8>) {
         match &self {
-            Instruction::Move(src, dst) => todo!(),
-            Instruction::MoveQ(src, dst) => todo!(),
-            Instruction::MoveL(src, dst) => todo!(),
-            Instruction::Return => todo!(),
-            Instruction::Xor(src, dst) => todo!(),
-            Instruction::VPermPS(_, _, _) => todo!(),
-            Instruction::VPermD(_, _, _) => todo!(),
-            Instruction::VPMaskMovD(_, _, _) => todo!(),
-            Instruction::VMovDQA(_, _) => todo!(),
-            Instruction::VPermILPS(_, _, _) => todo!(),
+            Instruction::MOV(src, dst) => todo!(),
+            Instruction::MOVQ(src, dst) => todo!(),
+            Instruction::MOVL(src, dst) => todo!(),
+            Instruction::RET => program.push(0xc3),
+            Instruction::XOR(src, dst) => todo!(),
+            Instruction::VPERMPS(_, _, _) => todo!(),
+            Instruction::VPERMD(_, _, _) => todo!(),
+            Instruction::VPMASKMOVD(_, _, _) => todo!(),
+            Instruction::VMOVDQA(_, _) => todo!(),
+            Instruction::VPERMILPS(_, _, _) => todo!(),
+            Instruction::RDTSC => {
+                program.push(0x0f);
+                program.push(0x31);
+            }
         }
     }
 }
@@ -42,39 +48,23 @@ impl Instruction {
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self {
-            Instruction::Move(src, dst) => write!(f, "mov {} {}", src, dst),
-            Instruction::MoveQ(src, dst) => write!(f, "movq {} {}", src, dst),
-            Instruction::MoveL(src, dst) => write!(f, "movl {} {}", src, dst),
-            Instruction::Return => write!(f, "ret"),
-            Instruction::Xor(src, dst) => write!(f, "xor {} {}", src, dst),
-            Instruction::VPermPS(reg1, reg2, reg3) => {
+            Instruction::MOV(src, dst) => write!(f, "mov {} {}", src, dst),
+            Instruction::MOVQ(src, dst) => write!(f, "movq {} {}", src, dst),
+            Instruction::MOVL(src, dst) => write!(f, "movl {} {}", src, dst),
+            Instruction::RET => write!(f, "ret"),
+            Instruction::XOR(src, dst) => write!(f, "xor {} {}", src, dst),
+            Instruction::VPERMPS(reg1, reg2, reg3) => {
                 write!(f, "vpermps {} {} {}", reg1, reg2, reg3)
             }
-            Instruction::VPermD(reg1, reg2, reg3) => write!(f, "vpermd {} {} {}", reg1, reg2, reg3),
-            Instruction::VPMaskMovD(reg1, reg2, reg3) => {
+            Instruction::VPERMD(reg1, reg2, reg3) => write!(f, "vpermd {} {} {}", reg1, reg2, reg3),
+            Instruction::VPMASKMOVD(reg1, reg2, reg3) => {
                 write!(f, "vpmaskmovd {} {} {}", reg1, reg2, reg3)
             }
-            Instruction::VMovDQA(src, dst) => write!(f, "vmovdqa {} {}", src, dst),
-            Instruction::VPermILPS(src, dst, mask) => {
+            Instruction::VMOVDQA(src, dst) => write!(f, "vmovdqa {} {}", src, dst),
+            Instruction::VPERMILPS(src, dst, mask) => {
                 write!(f, "vpermilps {} {} {}", src, dst, mask)
             }
-        }
-    }
-}
-
-impl SerializeBitCode for Instruction {
-    fn write_bytes(&self, bytes: &mut Vec<u8>) {
-        match &self {
-            Instruction::Move(_, _) => todo!(),
-            Instruction::MoveQ(_, _) => todo!(),
-            Instruction::MoveL(_, _) => todo!(),
-            Instruction::Xor(_, _) => todo!(),
-            Instruction::Return => todo!(),
-            Instruction::VPermPS(_, _, _) => todo!(),
-            Instruction::VPermILPS(_, _, _) => todo!(),
-            Instruction::VPermD(_, _, _) => todo!(),
-            Instruction::VPMaskMovD(_, _, _) => todo!(),
-            Instruction::VMovDQA(_, _) => todo!(),
+            Instruction::RDTSC => write!(f, "rdtsc"),
         }
     }
 }
@@ -132,6 +122,7 @@ impl SerializeBitCode for Operand {
 }
 
 #[derive(Debug)]
+#[allow(unused)]
 pub enum Register {
     /// 64 Bit Accumulator Register
     RAX,
