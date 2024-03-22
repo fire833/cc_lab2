@@ -33,7 +33,7 @@ impl EightInstruction {
 }
 
 impl CEncoder for EightInstruction {
-    fn encode_to_c(&self) -> String {
+    fn encode_to_c(&self, index: u32) -> String {
         format!("")
     }
 }

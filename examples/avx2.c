@@ -2,6 +2,10 @@
 #include <immintrin.h>
 #include <stdio.h>
 
+static const __m128i quadmask = {0xffffffffffffffff, 0xffffffffffffffff};
+static const __m256i octmask = {0xffffffffffffffff, 0xffffffffffffffff,
+                                0xffffffffffffffff, 0xffffffffffffffff};
+
 void permute() {
   __m256i values = {0xefff0001efff0002, 0xefff0003efff0004, 0xefff0005efff0006,
                     0xefff0007efff0008};

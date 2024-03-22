@@ -10,6 +10,7 @@ import json
 from templates.base import template as tmplbase
 from templates.asm import template as tmplasm
 from templates.cuda import template as tmplcuda
+from templates.simd import template as tmplsimd
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 2 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -64,6 +65,7 @@ templates = {
 	"base1": tmplbase,
 	"asm1": tmplasm,
 	"cuda1": tmplcuda,
+	"simd1": tmplsimd,
 }
 
 def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):

@@ -54,11 +54,55 @@ impl FourInstruction {
 
         Some(Self::new(f1, f2, f3, f4))
     }
+
+    fn get_first_output_index(&self) -> u32 {
+        let mut smallest = u32::MAX;
+
+        if self.value1.value < smallest {
+            smallest = self.value1.value;
+        }
+
+        if self.value2.value < smallest {
+            smallest = self.value2.value;
+        }
+
+        if self.value3.value < smallest {
+            smallest = self.value3.value;
+        }
+
+        if self.value4.value < smallest {
+            smallest = self.value4.value;
+        }
+
+        smallest
+    }
+
+    fn get_permute_mask(&self) -> i32 {
+        0
+    }
 }
 
 impl CEncoder for FourInstruction {
-    fn encode_to_c(&self) -> String {
-        format!("")
+    fn encode_to_c(&self, index: u32) -> String {
+        let smallest: u32 = self.get_first_output_index();
+        let mask: i32 = self.get_permute_mask();
+
+        format!(
+            "__m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
+            __m128 valout{} = _mm_permute_ps(valin{}, {});
+            _mm_maskstore_epi32(out[{}], quadmask, (__m128i) valout{});
+            ",
+            index,
+            self.value1.index,
+            self.value2.index,
+            self.value3.index,
+            self.value4.index,
+            index,
+            index,
+            mask,
+            smallest,
+            index
+        )
     }
 }
 

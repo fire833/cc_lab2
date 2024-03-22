@@ -41,7 +41,7 @@ impl SixteenInstruction {
 }
 
 impl CEncoder for SixteenInstruction {
-    fn encode_to_c(&self) -> String {
+    fn encode_to_c(&self, index: u32) -> String {
         format!("")
     }
 }

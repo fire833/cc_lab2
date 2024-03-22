@@ -5,5 +5,5 @@ pub trait SerializeMachineCode {
 
 /// Trait to encode instruction blocks to C code strings.
 pub trait CEncoder {
-    fn encode_to_c(&self) -> String;
+    fn encode_to_c(&self, index: u32) -> String;
 }

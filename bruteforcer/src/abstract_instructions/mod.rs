@@ -30,12 +30,12 @@ impl InstructionBlock {
 }
 
 impl CEncoder for InstructionBlock {
-    fn encode_to_c(&self) -> String {
+    fn encode_to_c(&self, index: u32) -> String {
         match &self {
-            InstructionBlock::Single(i) => i.encode_to_c(),
-            InstructionBlock::Four(i) => todo!(),
-            InstructionBlock::Eight(i) => todo!(),
-            InstructionBlock::Sixteen(i) => todo!(),
+            InstructionBlock::Single(i) => i.encode_to_c(index),
+            InstructionBlock::Four(i) => i.encode_to_c(index),
+            InstructionBlock::Eight(i) => i.encode_to_c(index),
+            InstructionBlock::Sixteen(i) => i.encode_to_c(index),
         }
     }
 }
