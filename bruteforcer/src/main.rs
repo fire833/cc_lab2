@@ -1,10 +1,13 @@
 use args::BruteforcerCmds;
 use clap::Parser;
+use itertools::Itertools;
 use playground::Playground;
 
 use crate::optimize::ShiftMask;
 
+mod abstract_instructions;
 mod args;
+mod encodings;
 mod instructions_x86_64;
 mod optimize;
 mod playground;
@@ -17,6 +20,8 @@ fn main() {
             if let Some(mask) = args.pattern {
                 let mask: ShiftMask = mask.into();
                 let blocks = mask.optimize_to_blocks();
+
+                for block in blocks.iter().permutations(blocks.len()) {}
 
                 let pg: Playground;
                 unsafe {
@@ -35,6 +40,8 @@ fn main() {
             if let Some(mask) = args.pattern {
                 let mask: ShiftMask = mask.into();
                 let blocks = mask.optimize_to_blocks();
+
+                for block in blocks.iter() {}
             } else {
                 println!("please provide a pattern to generate a corresponding C function body")
             }

@@ -2,9 +2,7 @@
 
 use std::fmt::Display;
 
-pub trait SerializeBitCode {
-    fn write_bytes(&self, bytes: &mut Vec<u8>);
-}
+use crate::encodings::SerializeMachineCode;
 
 /// Enumeration of the available X86_64 Instructions that we
 /// are utilizing for generating output programs. This is not
@@ -24,7 +22,7 @@ pub enum Instruction {
     RDTSC,
 }
 
-impl SerializeBitCode for Instruction {
+impl SerializeMachineCode for Instruction {
     fn write_bytes(&self, program: &mut Vec<u8>) {
         match &self {
             Instruction::MOV(src, dst) => todo!(),
@@ -108,7 +106,7 @@ impl Display for Operand {
     }
 }
 
-impl SerializeBitCode for Operand {
+impl SerializeMachineCode for Operand {
     fn write_bytes(&self, bytes: &mut Vec<u8>) {
         match &self {
             Operand::Immediate(_) => todo!(),
@@ -288,7 +286,7 @@ impl Display for Register {
     }
 }
 
-impl SerializeBitCode for Register {
+impl SerializeMachineCode for Register {
     fn write_bytes(&self, bytes: &mut Vec<u8>) {
         match &self {
             Register::RAX => todo!(),
