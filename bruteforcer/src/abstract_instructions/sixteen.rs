@@ -6,8 +6,8 @@ use super::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SixteenInstruction {
-    value1: EightInstruction,
-    value2: EightInstruction,
+    pub value1: EightInstruction,
+    pub value2: EightInstruction,
 }
 
 impl SixteenInstruction {

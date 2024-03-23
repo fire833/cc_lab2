@@ -4,10 +4,10 @@ use super::single::SingleInstruction;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct FourInstruction {
-    value1: SingleInstruction,
-    value2: SingleInstruction,
-    value3: SingleInstruction,
-    value4: SingleInstruction,
+    pub value1: SingleInstruction,
+    pub value2: SingleInstruction,
+    pub value3: SingleInstruction,
+    pub value4: SingleInstruction,
 }
 
 impl FourInstruction {
@@ -55,7 +55,7 @@ impl FourInstruction {
         Some(Self::new(f1, f2, f3, f4))
     }
 
-    fn get_first_output_index(&self) -> u32 {
+    const fn get_first_output_index(&self) -> u32 {
         let mut smallest = u32::MAX;
 
         if self.value1.value < smallest {
@@ -77,8 +77,15 @@ impl FourInstruction {
         smallest
     }
 
-    fn get_permute_mask(&self) -> i32 {
-        0
+    const fn get_permute_mask(&self) -> i32 {
+        let first_out = self.get_first_output_index();
+        let mut i: i32 = 0;
+
+        i |= ((self.value4.value - first_out) as i32) << 6;
+        i |= ((self.value3.value - first_out) as i32) << 4;
+        i |= ((self.value2.value - first_out) as i32) << 2;
+        i |= (self.value1.value - first_out) as i32;
+        i
     }
 }
 
@@ -89,9 +96,9 @@ impl CEncoder for FourInstruction {
 
         format!(
             "__m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
-            __m128 valout{} = _mm_permute_ps(valin{}, {});
-            _mm_maskstore_epi32(out[{}], quadmask, (__m128i) valout{});
-            ",
+__m128 valout{} = _mm_permute_ps(valin{}, {});
+_mm_store_ps(&out[{}], valout{});
+",
             index,
             self.value1.index,
             self.value2.index,

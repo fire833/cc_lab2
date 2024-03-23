@@ -3,7 +3,7 @@ use clap::Parser;
 use itertools::Itertools;
 use playground::Playground;
 
-use crate::optimize::ShiftMask;
+use crate::{encodings::CEncoder, optimize::ShiftMask};
 
 mod abstract_instructions;
 mod args;
@@ -41,7 +41,9 @@ fn main() {
                 let mask: ShiftMask = mask.into();
                 let blocks = mask.optimize_to_blocks();
 
-                for block in blocks.iter() {}
+                for (i, block) in blocks.iter().enumerate() {
+                    print!("{}", block.encode_to_c(i as u32));
+                }
             } else {
                 println!("please provide a pattern to generate a corresponding C function body")
             }

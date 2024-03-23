@@ -74,10 +74,14 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 
 	outfile = templates[template]["program_output"]
 
+	permute_gen = ""
+	if template == "simd1":
+		permute_gen = subprocess.run(["cargo", "run", "--manifest-path=bruteforcer/Cargo.toml", "--", "-p", pattern, "simplec"], capture_output=True).stdout.decode()
+
 	env = jinja2.Environment()
 	t = env.from_string(templates[template]["template"])
 	f = open(file=outfile, mode="w")
-	f.write(t.render(arg_count=arg_count, values=values))
+	f.write(t.render(arg_count=arg_count, values=values, permute_gen=permute_gen))
 	f.close()
 
 	args = templates[template]["compiler_prefix"]
