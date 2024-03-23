@@ -95,9 +95,9 @@ impl CEncoder for FourInstruction {
         let mask: i32 = self.get_permute_mask();
 
         format!(
-            "__m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
-__m128 valout{} = _mm_permute_ps(valin{}, {});
-_mm_store_ps(&out[{}], valout{});
+            "  __m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
+  __m128 valout{} = _mm_permute_ps(valin{}, {});
+  _mm_store_ps(&out[{}], valout{});
 ",
             index,
             self.value1.index,

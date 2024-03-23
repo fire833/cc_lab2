@@ -28,6 +28,12 @@ def new_parser():
 	gen.add_argument("--openmp", help="Specify whether to compile the metaprogram with OpenMP enabled.", type=bool, default=False, dest="openmp")
 	gen.add_argument("--asm", help="Specify whether to generate an output assembly program for analysis with a tool like OSACA.", type=bool, default=False, dest="asm")
 	gen.set_defaults(func=generate)
+	rgen = sub.add_parser("generate_rand")
+	rgen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base1", dest="template")
+	rgen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
+	rgen.add_argument("--openmp", help="Specify whether to compile the metaprogram with OpenMP enabled.", type=bool, default=False, dest="openmp")
+	rgen.add_argument("--asm", help="Specify whether to generate an output assembly program for analysis with a tool like OSACA.", type=bool, default=False, dest="asm")
+	rgen.set_defaults(func=generate_rand)
 	r = sub.add_parser("run")
 	r.add_argument("--values", help="Provide a comma-separated list of integers to pass to the generated program.", type=str, dest="values")
 	r.add_argument("--input", help="Provide a path to the generated program to execute.", type=str, default=progOut, dest="input")
@@ -48,6 +54,8 @@ def runner(args: ArgumentParser):
 	if sys.argv[1] == "generate":
 		print("generating new output program")
 		return generate(args.pattern, args.template, args.output, args.asm, args.openmp)
+	elif sys.argv[1] == "generate_rand":
+		return generate_rand(args.template, args.output, args.asm, args.openmp)
 	elif sys.argv[1] == "run":
 		print("running output program")
 		return run(args.input, [int(arg) for arg in args.values.split(",")])
@@ -97,6 +105,17 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 
 	args.append(outfile)
 	subprocess.run(args)
+
+def generate_rand(template: str, output: str, asm: bool, omp: bool):
+	nums = list(range(1, 1000))
+	random.shuffle(nums)
+
+	numstr = ""
+	for i in nums:
+		numstr += f"{i},"
+	numstr = numstr.removesuffix(",")
+
+	generate(numstr, template, output, asm, omp)
 
 def run(input: str, args: [int]):
 	parsed = ""

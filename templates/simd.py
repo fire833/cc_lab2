@@ -68,7 +68,7 @@ inline float *parse_input(char* input, int parsed_len) {
 }
 
 inline void permute(float *in, float *out) {
-	{{ permute_gen }}
+{{ permute_gen }}
 }
 
 int main(int argc, char **argv) {

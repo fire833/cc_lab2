@@ -92,10 +92,10 @@ impl CEncoder for EightInstruction {
         let mask = self.get_permute_mask();
 
         format!(
-            "__m256 valin{} = {{in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}]}};
-static const __m256i mask{} = {{{}, {}, {}, {}}};
-__m256 valout{} = _mm256_permutevar8x32_ps(valin{}, mask{});
-_mm256_storeu_ps(&out[{}], valout{});
+            "  __m256 valin{} = {{in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}]}};
+  static const __m256i mask{} = {{{}, {}, {}, {}}};
+  __m256 valout{} = _mm256_permutevar8x32_ps(valin{}, mask{});
+  _mm256_storeu_ps(&out[{}], valout{});
 ",
             index,
             self.value1.value1.index,
