@@ -25,11 +25,11 @@ pub enum Instruction {
 impl SerializeMachineCode for Instruction {
     fn write_bytes(&self, program: &mut Vec<u8>) {
         match &self {
-            Instruction::MOV(src, dst) => todo!(),
-            Instruction::MOVQ(src, dst) => todo!(),
-            Instruction::MOVL(src, dst) => todo!(),
+            Instruction::MOV(_, _) => todo!(),
+            Instruction::MOVQ(_, _) => todo!(),
+            Instruction::MOVL(_, _) => todo!(),
             Instruction::RET => program.push(0xc3),
-            Instruction::XOR(src, dst) => todo!(),
+            Instruction::XOR(_, _) => todo!(),
             Instruction::VPERMPS(_, _, _) => todo!(),
             Instruction::VPERMD(_, _, _) => todo!(),
             Instruction::VPMASKMOVD(_, _, _) => todo!(),
@@ -71,6 +71,7 @@ impl Display for Instruction {
 /// video for information about addressing modes from which this code
 /// is derived: https://www.youtube.com/watch?v=lUbPUWtmVUU
 #[derive(Debug)]
+#[allow(unused)]
 pub enum Operand {
     /// Provide integer data as an operand.
     Immediate(i32),
@@ -107,7 +108,7 @@ impl Display for Operand {
 }
 
 impl SerializeMachineCode for Operand {
-    fn write_bytes(&self, bytes: &mut Vec<u8>) {
+    fn write_bytes(&self, _bytes: &mut Vec<u8>) {
         match &self {
             Operand::Immediate(_) => todo!(),
             Operand::Register(_) => todo!(),
@@ -287,7 +288,7 @@ impl Display for Register {
 }
 
 impl SerializeMachineCode for Register {
-    fn write_bytes(&self, bytes: &mut Vec<u8>) {
+    fn write_bytes(&self, _bytes: &mut Vec<u8>) {
         match &self {
             Register::RAX => todo!(),
             Register::EAX => todo!(),

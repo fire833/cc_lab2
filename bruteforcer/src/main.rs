@@ -21,7 +21,7 @@ fn main() {
                 let mask: ShiftMask = mask.into();
                 let blocks = mask.optimize_to_blocks();
 
-                for block in blocks.iter().permutations(blocks.len()) {}
+                for _block in blocks.iter().permutations(blocks.len()) {}
 
                 let pg: Playground;
                 unsafe {

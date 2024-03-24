@@ -13,7 +13,7 @@ impl SingleInstruction {
 }
 
 impl CEncoder for SingleInstruction {
-    fn encode_to_c(&self, index: u32) -> String {
+    fn encode_to_c(&self, _index: u32) -> String {
         format!("  out[{}] = in[{}];\n", self.value, self.index)
     }
 }
