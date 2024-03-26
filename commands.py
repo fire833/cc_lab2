@@ -16,7 +16,7 @@ def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 2 Metaprogramming", add_help=True, allow_abbrev=True)
 	sub = p.add_subparsers(title="subcommands")
 	
-	if os.name == "windows":
+	if os.name == "nt":
 		progOut = "./prog.exe"
 	else:
 		progOut = "./prog"
