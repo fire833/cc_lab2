@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use crate::encodings::SerializeMachineCode;
+use crate::encodings::SerializeAMD64MachineCode;
 
 /// Enumeration of the available X86_64 Instructions that we
 /// are utilizing for generating output programs. This is not
@@ -22,8 +22,8 @@ pub enum Instruction {
     RDTSC,
 }
 
-impl SerializeMachineCode for Instruction {
-    fn write_bytes(&self, program: &mut Vec<u8>) {
+impl SerializeAMD64MachineCode for Instruction {
+    fn write_amd64_bytes(&self, program: &mut Vec<u8>) {
         match &self {
             Instruction::MOV(_, _) => todo!(),
             Instruction::MOVQ(_, _) => todo!(),
@@ -107,8 +107,8 @@ impl Display for Operand {
     }
 }
 
-impl SerializeMachineCode for Operand {
-    fn write_bytes(&self, _bytes: &mut Vec<u8>) {
+impl SerializeAMD64MachineCode for Operand {
+    fn write_amd64_bytes(&self, _bytes: &mut Vec<u8>) {
         match &self {
             Operand::Immediate(_) => todo!(),
             Operand::Register(_) => todo!(),
@@ -287,8 +287,8 @@ impl Display for Register {
     }
 }
 
-impl SerializeMachineCode for Register {
-    fn write_bytes(&self, _bytes: &mut Vec<u8>) {
+impl SerializeAMD64MachineCode for Register {
+    fn write_amd64_bytes(&self, _bytes: &mut Vec<u8>) {
         match &self {
             Register::RAX => todo!(),
             Register::EAX => todo!(),

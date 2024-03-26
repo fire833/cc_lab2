@@ -1,4 +1,7 @@
-use crate::{abstract_instructions::InstructionBlock, encodings::CEncoder};
+use crate::{
+    abstract_instructions::InstructionBlock,
+    encodings::{CEncoder, SerializeAMD64MachineCode},
+};
 
 use super::single::SingleInstruction;
 
@@ -111,6 +114,10 @@ impl CEncoder for FourInstruction {
             index
         )
     }
+}
+
+impl SerializeAMD64MachineCode for FourInstruction {
+    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {}
 }
 
 // Returns the pairing of index to mapped value for each index.

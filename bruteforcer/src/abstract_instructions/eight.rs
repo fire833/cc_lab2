@@ -1,4 +1,4 @@
-use crate::encodings::CEncoder;
+use crate::encodings::{CEncoder, SerializeAMD64MachineCode};
 
 use super::{four::FourInstruction, single::SingleInstruction, InstructionBlock};
 
@@ -118,6 +118,10 @@ impl CEncoder for EightInstruction {
             index,
         )
     }
+}
+
+impl SerializeAMD64MachineCode for EightInstruction {
+    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {}
 }
 
 impl Into<Vec<SingleInstruction>> for EightInstruction {

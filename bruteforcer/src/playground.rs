@@ -42,7 +42,7 @@ impl Playground {
         let f_output: *mut c_int;
 
         // Clear out our memory region before placing some new crap there.
-        println!("clearing/allocating memory now");
+        // println!("clearing/allocating memory now");
         unsafe {
             libc::memset(self.raw_memory, 0x00, self.size as usize);
             f_input = libc::calloc(input.len() as usize, size_of::<i32>()) as *mut c_int;

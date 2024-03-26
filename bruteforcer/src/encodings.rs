@@ -1,6 +1,6 @@
 /// Trait to encode objects to machine code.
-pub trait SerializeMachineCode {
-    fn write_bytes(&self, bytes: &mut Vec<u8>);
+pub trait SerializeAMD64MachineCode {
+    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>);
 }
 
 /// Trait to encode instruction blocks to C code strings.

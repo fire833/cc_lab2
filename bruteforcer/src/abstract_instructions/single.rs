@@ -1,4 +1,4 @@
-use crate::encodings::CEncoder;
+use crate::encodings::{CEncoder, SerializeAMD64MachineCode};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SingleInstruction {
@@ -16,6 +16,10 @@ impl CEncoder for SingleInstruction {
     fn encode_to_c(&self, _index: u32) -> String {
         format!("  out[{}] = in[{}];\n", self.value, self.index)
     }
+}
+
+impl SerializeAMD64MachineCode for SingleInstruction {
+    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {}
 }
 
 impl From<(u32, u32)> for SingleInstruction {
