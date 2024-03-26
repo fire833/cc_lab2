@@ -1,6 +1,6 @@
 
 template = {
-	"compiler_prefix": ["clang", "-O3", "-Wall"],
+	"compiler_prefix": ["clang", "-O3", "-Wall", "-g", "-std=c17", "-pedantic"],
 	"program_output": "prog.c",
 
 	"template": """
@@ -11,7 +11,7 @@ template = {
 
 const int arg_count = {{ arg_count }};
 
-inline int *parse_input(char* input, int parsed_len) {
+int *parse_input(char* input, int parsed_len) {
 	int index = 0;
 	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
@@ -63,7 +63,7 @@ inline int *parse_input(char* input, int parsed_len) {
 	return output;
 }
 
-inline void permute(int *in, int *out) {
+void permute(int *in, int *out) {
 	{% for val in values %}out[{{ val[0] }}] = in[{{ val[1] }}];
 	{% endfor %}
 }

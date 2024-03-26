@@ -1,6 +1,6 @@
 
 template = {
-	"compiler_prefix": ["clang", "-O3", "-Wall", "-mavx", "-mavx2", "-msse", "-g"],
+	"compiler_prefix": ["clang", "-O3", "-Wall", "-mavx", "-mavx2", "-msse", "-g", "-std=c17", "-pedantic"],
 	"program_output": "prog.c",
 
 	"template": """
@@ -15,7 +15,7 @@ const int arg_count = {{ arg_count }};
 // static const __m256i octmask = {0xffffffffffffffff, 0xffffffffffffffff,
 //                                 0xffffffffffffffff, 0xffffffffffffffff};
 
-inline float *parse_input(char* input, int parsed_len) {
+float *parse_input(char* input, int parsed_len) {
 	int index = 0;
 	float *output = (float *)calloc(parsed_len, sizeof(float));
 	int sum = 0;
@@ -67,7 +67,7 @@ inline float *parse_input(char* input, int parsed_len) {
 	return output;
 }
 
-inline void permute(float *in, float *out) {
+void permute(float *in, float *out) {
 {{ permute_gen }}
 }
 

@@ -7,3 +7,4 @@ prog
 *.S
 test
 .gdb_history
+benchmarks

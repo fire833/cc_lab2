@@ -25,14 +25,10 @@ def new_parser():
 	gen.add_argument("--pattern", help="Provide the pattern you want to generate against (should be a string with spaces)", type=str, dest="pattern")
 	gen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base1", dest="template")
 	gen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
-	gen.add_argument("--openmp", help="Specify whether to compile the metaprogram with OpenMP enabled.", type=bool, default=False, dest="openmp")
-	gen.add_argument("--asm", help="Specify whether to generate an output assembly program for analysis with a tool like OSACA.", type=bool, default=False, dest="asm")
 	gen.set_defaults(func=generate)
 	rgen = sub.add_parser("generate_rand")
 	rgen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base1", dest="template")
 	rgen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
-	rgen.add_argument("--openmp", help="Specify whether to compile the metaprogram with OpenMP enabled.", type=bool, default=False, dest="openmp")
-	rgen.add_argument("--asm", help="Specify whether to generate an output assembly program for analysis with a tool like OSACA.", type=bool, default=False, dest="asm")
 	rgen.set_defaults(func=generate_rand)
 	r = sub.add_parser("run")
 	r.add_argument("--values", help="Provide a comma-separated list of integers to pass to the generated program.", type=str, dest="values")
@@ -44,7 +40,8 @@ def new_parser():
 	rrand.add_argument("--argc", help="Provide the number of arguments that are expected in your generated program.", type=int, dest="argc")
 	rrand.add_argument("--arga", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
 	rrand.set_defaults(func=run_rand)
-	rrprt = sub.add_parser("runreport")
+	rrprt = sub.add_parser("runbench")
+	rrprt.add_argument("--input", help="Provide a path to the generated program to execute.", type=str, default="benchmarks", dest="input")
 	rtest = sub.add_parser("runtests")
 
 	return p
@@ -53,18 +50,18 @@ def runner(args: ArgumentParser):
 	# print(args)
 	if sys.argv[1] == "generate":
 		print("generating new output program")
-		return generate(args.pattern, args.template, args.output, args.asm, args.openmp)
+		return generate(args.pattern, args.template, args.output, False, False)
 	elif sys.argv[1] == "generate_rand":
-		return generate_rand(args.template, args.output, args.asm, args.openmp)
+		return generate_rand(args.template, args.output, False, False)
 	elif sys.argv[1] == "run":
 		print("running output program")
 		return run(args.input, [int(arg) for arg in args.values.split(",")])
 	elif sys.argv[1] == "runrand":
 		print("running output program with random inputs")
 		return run_rand(args.input, args.iterations, args.argc, args.arga)
-	elif sys.argv[1] == "runreport":
+	elif sys.argv[1] == "runbench":
 		print("running reporting")
-		
+		bench(args.input)
 	elif sys.argv[1] == "runtests":
 		print("running tests")
 		return run_tests([])
@@ -106,12 +103,14 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 	args.append(outfile)
 	subprocess.run(args)
 
-def generate_rand(template: str, output: str, asm: bool, omp: bool):
-	nums = list(range(1, 1000))
+def rand_pattern():
+	nums = list(range(0, 1000))
 	random.shuffle(nums)
+	return nums
 
+def generate_rand(template: str, output: str, asm: bool, omp: bool):
 	numstr = ""
-	for i in nums:
+	for i in rand_pattern():
 		numstr += f"{i},"
 	numstr = numstr.removesuffix(",")
 
@@ -133,6 +132,9 @@ def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
 		outputs.append(run(input, [int(random.randint(1,1000)) for i in range(s)]))
 
 	return outputs
+
+def bench(outDir: str):
+	pass
 
 def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
 	for tmpl in tmplversions:
