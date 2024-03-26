@@ -14,6 +14,9 @@ pub struct BruteforcerArgs {
     /// Specify the pattern to generate output code for.
     #[arg(long, short, value_delimiter = ',')]
     pub pattern: Option<Vec<u32>>,
+
+    #[arg(long, short, default_value_t = String::from("amd64"))]
+    pub arch: String,
 }
 
 #[derive(Subcommand, Debug)]

@@ -1,4 +1,4 @@
-use crate::encodings::{CEncoder, SerializeAMD64MachineCode};
+use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
 use super::{four::FourInstruction, single::SingleInstruction, InstructionBlock};
 
@@ -87,36 +87,41 @@ impl EightInstruction {
 }
 
 impl CEncoder for EightInstruction {
-    fn encode_to_c(&self, index: u32) -> String {
-        let smallest = self.get_first_output_index();
-        let mask = self.get_permute_mask();
+    fn encode_to_c(&self, index: u32, arch: Architecture) -> String {
+        match &arch {
+            Architecture::Amd64 => {
+                let smallest = self.get_first_output_index();
+                let mask = self.get_permute_mask();
 
-        format!(
-            "  __m256 valin{} = {{in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}]}};
-  static const __m256i mask{} = {{{}, {}, {}, {}}};
-  __m256 valout{} = _mm256_permutevar8x32_ps(valin{}, mask{});
-  _mm256_storeu_ps(&out[{}], valout{});
-",
-            index,
-            self.value1.value1.index,
-            self.value1.value2.index,
-            self.value1.value3.index,
-            self.value1.value4.index,
-            self.value2.value1.index,
-            self.value2.value2.index,
-            self.value2.value3.index,
-            self.value2.value4.index,
-            index,
-            mask.0,
-            mask.1,
-            mask.2,
-            mask.3,
-            index,
-            index,
-            index,
-            smallest,
-            index,
-        )
+                format!(
+                    "  __m256 valin{} = {{in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}]}};
+          static const __m256i mask{} = {{{}, {}, {}, {}}};
+          __m256 valout{} = _mm256_permutevar8x32_ps(valin{}, mask{});
+          _mm256_storeu_ps(&out[{}], valout{});
+        ",
+                    index,
+                    self.value1.value1.index,
+                    self.value1.value2.index,
+                    self.value1.value3.index,
+                    self.value1.value4.index,
+                    self.value2.value1.index,
+                    self.value2.value2.index,
+                    self.value2.value3.index,
+                    self.value2.value4.index,
+                    index,
+                    mask.0,
+                    mask.1,
+                    mask.2,
+                    mask.3,
+                    index,
+                    index,
+                    index,
+                    smallest,
+                    index,
+                )
+            }
+            Architecture::Arm => format!(""),
+        }
     }
 }
 

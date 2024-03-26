@@ -1,6 +1,6 @@
 use crate::{
     abstract_instructions::InstructionBlock,
-    encodings::{CEncoder, SerializeAMD64MachineCode},
+    encodings::{Architecture, CEncoder, SerializeAMD64MachineCode},
 };
 
 use super::single::SingleInstruction;
@@ -93,26 +93,31 @@ impl FourInstruction {
 }
 
 impl CEncoder for FourInstruction {
-    fn encode_to_c(&self, index: u32) -> String {
-        let smallest: u32 = self.get_first_output_index();
-        let mask: i32 = self.get_permute_mask();
+    fn encode_to_c(&self, index: u32, arch: Architecture) -> String {
+        match &arch {
+            Architecture::Amd64 => {
+                let smallest: u32 = self.get_first_output_index();
+                let mask: i32 = self.get_permute_mask();
 
-        format!(
-            "  __m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
-  __m128 valout{} = _mm_permute_ps(valin{}, {});
-  _mm_store_ps(&out[{}], valout{});
-",
-            index,
-            self.value1.index,
-            self.value2.index,
-            self.value3.index,
-            self.value4.index,
-            index,
-            index,
-            mask,
-            smallest,
-            index
-        )
+                format!(
+                    "  __m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
+          __m128 valout{} = _mm_permute_ps(valin{}, {});
+          _mm_store_ps(&out[{}], valout{});
+        ",
+                    index,
+                    self.value1.index,
+                    self.value2.index,
+                    self.value3.index,
+                    self.value4.index,
+                    index,
+                    index,
+                    mask,
+                    smallest,
+                    index
+                )
+            }
+            Architecture::Arm => format!(""),
+        }
     }
 }
 

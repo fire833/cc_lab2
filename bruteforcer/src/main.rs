@@ -1,5 +1,8 @@
+use std::process::exit;
+
 use args::BruteforcerCmds;
 use clap::Parser;
+use encodings::Architecture;
 use itertools::Itertools;
 use playground::Playground;
 
@@ -18,6 +21,14 @@ mod playground;
 
 fn main() {
     let args = args::BruteforcerArgs::parse();
+    let arch: Architecture;
+    match Architecture::try_from(args.arch) {
+        Ok(a) => arch = a,
+        Err(e) => {
+            println!("{}", e);
+            exit(1);
+        }
+    }
 
     match args.cmd {
         BruteforcerCmds::Bruteforce => {
@@ -51,7 +62,7 @@ fn main() {
                 let blocks = mask.optimize_to_blocks(255);
 
                 for (i, block) in blocks.iter().enumerate() {
-                    print!("{}", block.encode_to_c(i as u32));
+                    print!("{}", block.encode_to_c(i as u32, arch));
                 }
             } else {
                 println!("please provide a pattern to generate a corresponding C function body")

@@ -1,4 +1,4 @@
-use crate::encodings::{CEncoder, SerializeAMD64MachineCode};
+use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
 use self::{
     eight::EightInstruction, four::FourInstruction, single::SingleInstruction,
@@ -30,12 +30,12 @@ impl InstructionBlock {
 }
 
 impl CEncoder for InstructionBlock {
-    fn encode_to_c(&self, index: u32) -> String {
+    fn encode_to_c(&self, index: u32, arch: Architecture) -> String {
         match &self {
-            InstructionBlock::Single(i) => i.encode_to_c(index),
-            InstructionBlock::Four(i) => i.encode_to_c(index),
-            InstructionBlock::Eight(i) => i.encode_to_c(index),
-            InstructionBlock::Sixteen(i) => i.encode_to_c(index),
+            InstructionBlock::Single(i) => i.encode_to_c(index, arch),
+            InstructionBlock::Four(i) => i.encode_to_c(index, arch),
+            InstructionBlock::Eight(i) => i.encode_to_c(index, arch),
+            InstructionBlock::Sixteen(i) => i.encode_to_c(index, arch),
         }
     }
 }

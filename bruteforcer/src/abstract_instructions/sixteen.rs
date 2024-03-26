@@ -1,4 +1,4 @@
-use crate::encodings::{CEncoder, SerializeAMD64MachineCode};
+use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
 use super::{
     eight::EightInstruction, four::FourInstruction, single::SingleInstruction, InstructionBlock,
@@ -41,7 +41,7 @@ impl SixteenInstruction {
 }
 
 impl CEncoder for SixteenInstruction {
-    fn encode_to_c(&self, _index: u32) -> String {
+    fn encode_to_c(&self, _index: u32, _arch: Architecture) -> String {
         format!("")
     }
 }
