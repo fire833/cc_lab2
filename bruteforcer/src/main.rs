@@ -23,7 +23,7 @@ fn main() {
         BruteforcerCmds::Bruteforce => {
             if let Some(mask) = args.pattern {
                 let mask: ShiftMask = mask.into();
-                let blocks = mask.optimize_to_blocks();
+                let blocks = mask.optimize_to_blocks(255);
                 let pg: Playground;
                 unsafe {
                     pg = Playground::new(4096);
@@ -39,6 +39,7 @@ fn main() {
                     Instruction::RDTSC.write_amd64_bytes(&mut program_buffer);
                     Instruction::RET.write_amd64_bytes(&mut program_buffer);
                     let _output = pg.run_is_correct(&program_buffer, &mask);
+                    program_buffer.clear();
                 }
             } else {
                 println!("please provide a pattern to bruteforce possible solutions")
@@ -47,7 +48,7 @@ fn main() {
         BruteforcerCmds::SimpleCFunc => {
             if let Some(mask) = args.pattern {
                 let mask: ShiftMask = mask.into();
-                let blocks = mask.optimize_to_blocks();
+                let blocks = mask.optimize_to_blocks(255);
 
                 for (i, block) in blocks.iter().enumerate() {
                     print!("{}", block.encode_to_c(i as u32));

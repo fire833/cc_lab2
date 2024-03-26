@@ -44,7 +44,7 @@ impl ShiftMask {
         output
     }
 
-    pub fn optimize_to_blocks(&self) -> VecDeque<InstructionBlock> {
+    pub fn optimize_to_blocks(&self, num_iter: u8) -> VecDeque<InstructionBlock> {
         // check through all 4 blocks
         let mut set1: VecDeque<InstructionBlock> = VecDeque::new();
         let mut set2: VecDeque<InstructionBlock> = VecDeque::new();
@@ -59,6 +59,10 @@ impl ShiftMask {
         }
 
         for simd_count in Self::SIMD_COUNTS.iter() {
+            if *simd_count > num_iter {
+                continue;
+            }
+
             let mut sum = 0;
             let mut queue: Vec<InstructionBlock> = vec![];
 
@@ -223,7 +227,7 @@ fn test_self_permute() {
 fn test_dp() {
     let mask = ShiftMask::new(vec![1, 2, 3, 0, 4, 7, 5, 6, 8]);
     assert_eq!(
-        mask.optimize_to_blocks(),
+        mask.optimize_to_blocks(255),
         vec![
             InstructionBlock::Eight(EightInstruction::new(
                 FourInstruction::new(
