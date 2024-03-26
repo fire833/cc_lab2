@@ -19,6 +19,7 @@ pub enum Instruction {
     VPERMD(Operand, Operand, Operand),
     VPMASKMOVD(Operand, Operand, Operand),
     VMOVDQA(Operand, Operand),
+    VZEROUPPER,
     RDTSC,
 }
 
@@ -35,6 +36,11 @@ impl SerializeAMD64MachineCode for Instruction {
             Instruction::VPMASKMOVD(_, _, _) => todo!(),
             Instruction::VMOVDQA(_, _) => todo!(),
             Instruction::VPERMILPS(_, _, _) => todo!(),
+            Instruction::VZEROUPPER => {
+                program.push(0xc5);
+                program.push(0xf8);
+                program.push(0x77);
+            }
             Instruction::RDTSC => {
                 program.push(0x0f);
                 program.push(0x31);
@@ -62,6 +68,7 @@ impl Display for Instruction {
             Instruction::VPERMILPS(src, dst, mask) => {
                 write!(f, "vpermilps {} {} {}", src, dst, mask)
             }
+            Instruction::VZEROUPPER => write!(f, "vzeroupper"),
             Instruction::RDTSC => write!(f, "rdtsc"),
         }
     }
