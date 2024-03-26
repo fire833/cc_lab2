@@ -9,7 +9,8 @@ import csv
 import json
 from templates.base import template as tmplbase
 from templates.asm import template as tmplasm
-from templates.cuda import template as tmplcuda
+from templates.cuda1 import template as tmplcuda1
+from templates.cuda2 import template as tmplcuda2
 from templates.simd import template as tmplsimd
 
 def new_parser():
@@ -68,8 +69,9 @@ def runner(args: ArgumentParser):
 
 templates = {
 	"base1": tmplbase,
-	"asm1": tmplasm,
-	"cuda1": tmplcuda,
+	# "asm1": tmplasm,
+	"cuda1": tmplcuda1,
+	"cuda2": tmplcuda2,
 	"simd1": tmplsimd,
 }
 
@@ -134,7 +136,13 @@ def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
 	return outputs
 
 def bench(outDir: str):
-	pass
+	patterns = []
+
+	for tmpl in templates:
+		for pattern in patterns:
+			name = tmpl["name"] + "_" + tmpl["program_output"]
+			outStr = f"{outDir}/{name}"
+			generate(pattern, tmpl, outStr, False, False)
 
 def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
 	for tmpl in tmplversions:

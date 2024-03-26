@@ -2,6 +2,7 @@
 template = {
 	"compiler_prefix": ["clang", "-O3", "-Wall", "-g", "-std=c17", "-pedantic"],
 	"program_output": "prog.c",
+	"name": "asm1",
 
 	"template": """
 #include <stdio.h>

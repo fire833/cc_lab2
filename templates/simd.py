@@ -2,6 +2,7 @@
 template = {
 	"compiler_prefix": ["clang", "-O3", "-Wall", "-mavx", "-mavx2", "-msse", "-g", "-std=c17", "-pedantic"],
 	"program_output": "prog.c",
+	"name": "simd1",
 
 	"template": """
 #include <immintrin.h>

@@ -2,6 +2,7 @@
 template = {
 	"compiler_prefix": ["nvcc", "-O3"],
 	"program_output": "prog.cu",
+	"name": "cuda1",
 
 	"template": """
 #include <stdio.h>
