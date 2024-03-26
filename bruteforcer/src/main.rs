@@ -1,6 +1,5 @@
 use args::BruteforcerCmds;
 use clap::Parser;
-use instructions_x86_64::{Operand, Register};
 use itertools::Itertools;
 use playground::Playground;
 

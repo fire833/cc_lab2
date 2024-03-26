@@ -117,7 +117,7 @@ impl CEncoder for FourInstruction {
 }
 
 impl SerializeAMD64MachineCode for FourInstruction {
-    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {}
+    fn write_amd64_bytes(&self, _bytes: &mut Vec<u8>) {}
 }
 
 // Returns the pairing of index to mapped value for each index.

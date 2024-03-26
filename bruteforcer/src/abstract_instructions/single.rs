@@ -19,7 +19,7 @@ impl CEncoder for SingleInstruction {
 }
 
 impl SerializeAMD64MachineCode for SingleInstruction {
-    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {}
+    fn write_amd64_bytes(&self, _bytes: &mut Vec<u8>) {}
 }
 
 impl From<(u32, u32)> for SingleInstruction {

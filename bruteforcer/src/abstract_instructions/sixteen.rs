@@ -47,7 +47,7 @@ impl CEncoder for SixteenInstruction {
 }
 
 impl SerializeAMD64MachineCode for SixteenInstruction {
-    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {}
+    fn write_amd64_bytes(&self, _bytes: &mut Vec<u8>) {}
 }
 
 impl Into<Vec<SingleInstruction>> for SixteenInstruction {
