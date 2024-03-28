@@ -14,7 +14,7 @@ impl SingleInstruction {
 
 impl CEncoder for SingleInstruction {
     fn encode_to_c(&self, _index: u32, _arch: Architecture) -> String {
-        format!("  out[{}] = in[{}];\n", self.value, self.index)
+        format!("  out[{}] = in[{}];\n", self.index, self.value)
     }
 }
 

@@ -83,8 +83,10 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 
 	permute_gen = ""
 	if template == "simd1":
+		print("generating simd optimizations with bruteforcer")
 		permute_gen = subprocess.run(["cargo", "run", "--manifest-path=bruteforcer/Cargo.toml", "--", "-p", pattern, "simplec"], capture_output=True).stdout.decode()
 
+	print("rendering template")
 	env = jinja2.Environment()
 	t = env.from_string(templates[template]["template"])
 	f = open(file=outfile, mode="w")
@@ -103,6 +105,7 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 		args.pop(len(args) - 1)
 
 	args.append(outfile)
+	print("compiling program")
 	subprocess.run(args)
 
 def rand_pattern(arg_count: int):
