@@ -295,9 +295,9 @@ impl Display for Register {
 }
 
 impl SerializeAMD64MachineCode for Register {
-    fn write_amd64_bytes(&self, _bytes: &mut Vec<u8>) {
+    fn write_amd64_bytes(&self, bytes: &mut Vec<u8>) {
         match &self {
-            Register::RAX => todo!(),
+            Register::RAX => bytes.push(0xc0),
             Register::EAX => todo!(),
             Register::RBX => todo!(),
             Register::EBX => todo!(),
@@ -305,7 +305,7 @@ impl SerializeAMD64MachineCode for Register {
             Register::ECX => todo!(),
             Register::RDX => todo!(),
             Register::EDX => todo!(),
-            Register::RSP => todo!(),
+            Register::RSP => bytes.push(0x24),
             Register::ESP => todo!(),
             Register::RDI => todo!(),
             Register::EDI => todo!(),

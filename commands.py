@@ -27,19 +27,18 @@ def new_parser():
 	gen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base1", dest="template")
 	gen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
 	gen.set_defaults(func=generate)
-	rgen = sub.add_parser("generate_rand")
+	rgen = sub.add_parser("genrand")
 	rgen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base1", dest="template")
 	rgen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
+	rgen.add_argument("--arg_count", help="Provide the number of arguments to build with your random permutation.", type=int, default=1000, dest="arg_count")
 	rgen.set_defaults(func=generate_rand)
 	r = sub.add_parser("run")
 	r.add_argument("--values", help="Provide a comma-separated list of integers to pass to the generated program.", type=str, dest="values")
-	r.add_argument("--input", help="Provide a path to the generated program to execute.", type=str, default=progOut, dest="input")
 	r.set_defaults(func=run)
 	rrand = sub.add_parser("runrand")
 	rrand.add_argument("--input", help="Provide a path to the generated program to execute.", type=str, default=progOut, dest="input")
-	rrand.add_argument("--iter", help="Provide the number of iterations you want to execute.", type=int, default=50, dest="iterations")
-	rrand.add_argument("--argc", help="Provide the number of arguments that are expected in your generated program.", type=int, dest="argc")
-	rrand.add_argument("--arga", help="Provide the number of additional arguments that are expected in your generated program.", type=int, dest="arga")
+	rrand.add_argument("--arg_count", help="Provide number of values your generated program expects.", type=int, dest="arg_count")
+	rrand.add_argument("--iter", help="Provide the number of iterations you want to execute.", type=int, default=25, dest="iterations")
 	rrand.set_defaults(func=run_rand)
 	rrprt = sub.add_parser("runbench")
 	rrprt.add_argument("--input", help="Provide a path to the generated program to execute.", type=str, default="benchmarks", dest="input")
@@ -52,14 +51,15 @@ def runner(args: ArgumentParser):
 	if sys.argv[1] == "generate":
 		print("generating new output program")
 		return generate(args.pattern, args.template, args.output, False, False)
-	elif sys.argv[1] == "generate_rand":
-		return generate_rand(args.template, args.output, False, False)
+	elif sys.argv[1] == "genrand":
+		return generate_rand(args.template, args.output, args.arg_count, False, False)
 	elif sys.argv[1] == "run":
 		print("running output program")
 		return run(args.input, [int(arg) for arg in args.values.split(",")])
 	elif sys.argv[1] == "runrand":
 		print("running output program with random inputs")
-		return run_rand(args.input, args.iterations, args.argc, args.arga)
+		outputs = run_rand(args.input, args.iterations, args.arg_count)
+		print(outputs)
 	elif sys.argv[1] == "runbench":
 		print("running reporting")
 		bench(args.input)
@@ -105,14 +105,14 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 	args.append(outfile)
 	subprocess.run(args)
 
-def rand_pattern():
-	nums = list(range(0, 1000))
+def rand_pattern(arg_count: int):
+	nums = list(range(0, arg_count))
 	random.shuffle(nums)
 	return nums
 
-def generate_rand(template: str, output: str, asm: bool, omp: bool):
+def generate_rand(template: str, output: str, arg_count: int, asm: bool, omp: bool):
 	numstr = ""
-	for i in rand_pattern():
+	for i in rand_pattern(arg_count):
 		numstr += f"{i},"
 	numstr = numstr.removesuffix(",")
 
@@ -126,21 +126,21 @@ def run(input: str, args: [int]):
 
 	return json.loads(subprocess.run([input, str(len(args)), parsed.rstrip(",")], capture_output=True).stdout.decode()) 
 
-def run_rand(input: str, iterations: int, arg_count: int, additional_args: int):
-	s = arg_count + additional_args
+def run_rand(inputprog: str, iterations: int, arg_count: int):
+	values = [i for i in range(arg_count)]
 	outputs = []
-
+	
 	for i in range(iterations):
-		outputs.append(run(input, [int(random.randint(1,1000)) for i in range(s)]))
+		outputs.append(run(inputprog, values))
 
 	return outputs
 
 def bench(outDir: str):
-	patterns = []
+	patterns = ["3,2,1,0"]
 
 	for tmpl in templates:
 		for pattern in patterns:
-			name = tmpl["name"] + "_" + tmpl["program_output"]
+			name = tmpl[name] + "_" + tmpl[program_output]
 			outStr = f"{outDir}/{name}"
 			generate(pattern, tmpl, outStr, False, False)
 
