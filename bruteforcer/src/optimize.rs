@@ -118,14 +118,14 @@ impl ShiftMask {
                     set2.push_back(elem);
                     // If we have no elements left in the set, then move the
                     // queue over to the output set.
-                } else if set1.len() == 0 {
-                    while queue.len() > 0 {
-                        let elem = queue.remove(0);
-                        set2.push_back(elem);
-                    }
                 } else if sum < *simd_count {
                     continue;
                 }
+            }
+
+            while queue.len() > 0 {
+                let elem = queue.remove(0);
+                set2.push_back(elem);
             }
 
             set1 = set2;

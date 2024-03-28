@@ -1,10 +1,12 @@
+use std::fmt::Debug;
+
 use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
 use super::{
     eight::EightInstruction, four::FourInstruction, single::SingleInstruction, InstructionBlock,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SixteenInstruction {
     pub value1: EightInstruction,
     pub value2: EightInstruction,
@@ -37,6 +39,12 @@ impl SixteenInstruction {
                 FourInstruction::new(full_vec[12], full_vec[13], full_vec[14], full_vec[15]),
             ),
         ))
+    }
+}
+
+impl Debug for SixteenInstruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{:?}, {:?}]", self.value1, self.value2)
     }
 }
 

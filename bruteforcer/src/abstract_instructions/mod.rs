@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
 use self::{
@@ -10,7 +12,7 @@ pub mod four;
 pub mod single;
 pub mod sixteen;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum InstructionBlock {
     Single(SingleInstruction),
     Four(FourInstruction),
@@ -25,6 +27,17 @@ impl InstructionBlock {
             InstructionBlock::Four(_) => 4,
             InstructionBlock::Eight(_) => 8,
             InstructionBlock::Sixteen(_) => 16,
+        }
+    }
+}
+
+impl Debug for InstructionBlock {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            InstructionBlock::Single(i) => write!(f, "{:?}", i),
+            InstructionBlock::Four(i) => write!(f, "{:?}", i),
+            InstructionBlock::Eight(i) => write!(f, "{:?}", i),
+            InstructionBlock::Sixteen(i) => write!(f, "{:?}", i),
         }
     }
 }

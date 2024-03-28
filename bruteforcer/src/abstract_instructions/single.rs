@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SingleInstruction {
     pub index: u32,
     pub value: u32,
@@ -9,6 +11,12 @@ pub struct SingleInstruction {
 impl SingleInstruction {
     pub const fn new(index: u32, value: u32) -> Self {
         Self { index, value }
+    }
+}
+
+impl Debug for SingleInstruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {})", self.index, self.value)
     }
 }
 

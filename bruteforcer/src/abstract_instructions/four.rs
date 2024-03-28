@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::{
     abstract_instructions::InstructionBlock,
     encodings::{Architecture, CEncoder, SerializeAMD64MachineCode},
@@ -5,7 +7,7 @@ use crate::{
 
 use super::single::SingleInstruction;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct FourInstruction {
     pub value1: SingleInstruction,
     pub value2: SingleInstruction,
@@ -89,6 +91,16 @@ impl FourInstruction {
         i |= ((self.value2.index - first_out) as i32) << 2;
         i |= (self.value1.index - first_out) as i32;
         i
+    }
+}
+
+impl Debug for FourInstruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "[{:?}, {:?}, {:?}, {:?}]",
+            self.value1, self.value2, self.value3, self.value4
+        )
     }
 }
 
