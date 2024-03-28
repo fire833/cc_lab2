@@ -109,9 +109,10 @@ __host__ int main(int argc, char **argv) {
 	cudaEventRecord(start);
     
 	permute_array<<<1, input_int_len>>>(input_gpu, mask_gpu, output_gpu);
-
+	
+	cudaEventRecord(stop);
     cudaEventSynchronize(stop);
-  	float milliseconds = 0;
+  	float milliseconds = -1;
   	cudaEventElapsedTime(&milliseconds, start, stop);
 
     // Copy data back over
@@ -126,7 +127,7 @@ __host__ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %.1f, \\"code\\": 0}\\n", milliseconds);
+	printf("\\"compute\\": %d, \\"code\\": 0}\\n", (int) (milliseconds * 1000));
 
     cudaFree(&input_gpu);
     cudaFree(&output_gpu);

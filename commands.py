@@ -7,11 +7,13 @@ import os
 import random
 import csv
 import json
-from templates.base import template as tmplbase
+from templates.base1 import template as tmplbase1
+from templates.base2 import template as tmplbase2
 from templates.asm import template as tmplasm
 from templates.cuda1 import template as tmplcuda1
 from templates.cuda2 import template as tmplcuda2
-from templates.simd import template as tmplsimd
+from templates.simd1 import template as tmplsimd1
+from templates.simd2 import template as tmplsimd2
 
 def new_parser():
 	p = ArgumentParser(prog=sys.argv[0], description="Wrapper scripts/utilities for Lab 2 Metaprogramming", add_help=True, allow_abbrev=True)
@@ -28,7 +30,7 @@ def new_parser():
 	gen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
 	gen.set_defaults(func=generate)
 	rgen = sub.add_parser("genrand")
-	rgen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base1", dest="template")
+	rgen.add_argument("--template", help="Provide the template you want to generate from", type=str, default="base2", dest="template")
 	rgen.add_argument("--output", help="Provide the output location of the generated program executable.", type=str, default=progOut, dest="output")
 	rgen.add_argument("--arg_count", help="Provide the number of arguments to build with your random permutation.", type=int, default=1000, dest="arg_count")
 	rgen.set_defaults(func=generate_rand)
@@ -68,11 +70,13 @@ def runner(args: ArgumentParser):
 		return run_tests([])
 
 templates = {
-	"base1": tmplbase,
+	"base1": tmplbase1,
+	"base2": tmplbase2,
 	# "asm1": tmplasm,
 	"cuda1": tmplcuda1,
 	"cuda2": tmplcuda2,
-	"simd1": tmplsimd,
+	"simd1": tmplsimd1,
+	"simd2": tmplsimd2,
 }
 
 def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
@@ -82,7 +86,7 @@ def generate(pattern: str, template: str, output: str, asm: bool, omp: bool):
 	outfile = templates[template]["program_output"]
 
 	permute_gen = ""
-	if template == "simd1":
+	if template == "simd1" or template == "simd2":
 		print("generating simd optimizations with bruteforcer")
 		permute_gen = subprocess.run(["cargo", "run", "--manifest-path=bruteforcer/Cargo.toml", "--", "-p", pattern, "simplec"], capture_output=True).stdout.decode()
 
@@ -134,7 +138,8 @@ def run_rand(inputprog: str, iterations: int, arg_count: int):
 	outputs = []
 	
 	for i in range(iterations):
-		outputs.append(run(inputprog, values))
+		out = run(inputprog, values)
+		outputs.append(out["compute"])
 
 	return outputs
 

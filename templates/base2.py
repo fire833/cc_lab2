@@ -1,24 +1,20 @@
 
 template = {
-	"compiler_prefix": ["clang", "-O3", "-Wall", "-mavx", "-mavx2", "-msse", "-g", "-std=c17", "-pedantic"],
+	"compiler_prefix": ["clang", "-O3", "-Wall", "-g", "-pedantic"],
 	"program_output": "prog.c",
-	"name": "simd1",
+	"name": "base2",
 
 	"template": """
-#include <immintrin.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 const int arg_count = {{ arg_count }};
-// static const __m128i quadmask = {0xffffffffffffffff, 0xffffffffffffffff};
-// static const __m256i octmask = {0xffffffffffffffff, 0xffffffffffffffff,
-//                                 0xffffffffffffffff, 0xffffffffffffffff};
 
-float *parse_input(char* input, int parsed_len) {
+int *parse_input(char* input, int parsed_len) {
 	int index = 0;
-	float *output = (float *)calloc(parsed_len, sizeof(float));
+	int *output = (int *)calloc(parsed_len, sizeof(int));
 	int sum = 0;
   	for (int i = 0; i < strlen(input); i++) {
     	// Shift over the sum and add a new value, whatever it may be.
@@ -56,7 +52,7 @@ float *parse_input(char* input, int parsed_len) {
 
     	// We are at the end of the number, reset to a new sum.
     	case ',': {
-      		output[index] = (float) sum;
+      		output[index] = sum;
       		sum = 0;
       		index++;
      		continue;
@@ -64,12 +60,14 @@ float *parse_input(char* input, int parsed_len) {
     	}
   	}
 
-  	output[index] = (float) sum;
+  	output[index] = sum;
 	return output;
 }
 
-void permute(float *in, float *out) {
-{{ permute_gen }}}
+void permute(int *in, int *out) {
+	{% for val in values %}out[{{ val[0] }}] = in[{{ val[1] }}];
+	{% endfor %}
+}
 
 int main(int argc, char **argv) {
 	if (argc != 3) {
@@ -85,24 +83,25 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	float *input = parse_input(argv[2], input_int_len);
-	float *output = (float*)calloc(input_int_len, sizeof(float));
-	clock_t start, end;
+	int *input = parse_input(argv[2], input_int_len);
+	int *output = (int*)calloc(input_int_len, sizeof(int));
+	struct timespec start = {.tv_nsec = 0, .tv_sec = 0};
+  	struct timespec end = {.tv_nsec = 0, .tv_sec = 0};
 
-	start = clock();
+	clock_gettime((clockid_t)CLOCK_THREAD_CPUTIME_ID, &start);
 	permute(input, output);
-	end = clock();
+	clock_gettime((clockid_t)CLOCK_THREAD_CPUTIME_ID, &end);
 
 	printf("{\\"values\\": [");
 	for (int i = 0; i < input_int_len; i++) {
 		if (i == input_int_len - 1) {
-			printf("%d],", (int) output[i]);
+			printf("%d],", output[i]);
 		} else {
-    		printf("%d,", (int) output[i]);
+    		printf("%d,", output[i]);
 		}
   	}
 
-	printf("\\"compute\\": %.1f, \\"code\\": 0}\\n", ((double) (end - start)));
+	printf("\\"compute\\": %ld, \\"code\\": 0}\\n", end.tv_nsec - start.tv_nsec);
 
 	free(input);
 	free(output);
@@ -110,3 +109,4 @@ int main(int argc, char **argv) {
 
 """
 }
+

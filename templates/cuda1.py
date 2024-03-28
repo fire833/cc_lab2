@@ -101,13 +101,13 @@ __host__ int main(int argc, char **argv) {
     cudaMemcpy(input_gpu, input_host, input_int_len * sizeof(int), cudaMemcpyHostToDevice);
     // Copy mask to device
     cudaMemcpy(mask_gpu, mask_host, input_int_len * sizeof(int), cudaMemcpyHostToDevice);
+    struct timespec start = {.tv_sec = 0, .tv_nsec = 0};
+  	struct timespec end = {.tv_sec = 0, .tv_nsec = 0};
     
-    clock_t start, end;
-    
-	start = clock();
+	clock_gettime((clockid_t)CLOCK_THREAD_CPUTIME_ID, &start);
     permute_array<<<1, input_int_len>>>(input_gpu, mask_gpu, output_gpu);
     cudaDeviceSynchronize();
-	end = clock();
+	clock_gettime((clockid_t)CLOCK_THREAD_CPUTIME_ID, &end);
 
     // Copy data back over
     cudaMemcpy(output_host, output_gpu, input_int_len * sizeof(int), cudaMemcpyDeviceToHost);
@@ -121,7 +121,7 @@ __host__ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %.1f, \\"code\\": 0}\\n", ((double) (end - start)));
+	printf("\\"compute\\": %ld, \\"code\\": 0}\\n", end.tv_nsec - start.tv_nsec);
 
     cudaFree(&input_gpu);
     cudaFree(&output_gpu);
