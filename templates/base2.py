@@ -70,20 +70,28 @@ void permute(int *in, int *out) {
 }
 
 int main(int argc, char **argv) {
-	if (argc != 3) {
-		printf("{\\"error\\": \\"2 arguments required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}");
-		exit(1);
-	}
+{% if not inputstr %}
+    if (argc != 3) {
+		printf(\"{\\"error\\": \\"2 arguments required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}\");
+        exit(1);
+    }
 
-	char *none;
-  	int input_int_len = strtol(argv[1], &none, 10);
+    char *none;
+    int input_int_len = strtol(argv[1], &none, 10);
 
-	if (input_int_len != arg_count) {
-		printf("{\\"error\\": \\"must provide as many inputs as there are arguments (%d)\\",\\"code\\":1}", arg_count);
-		exit(1);
-	}
-
+    if (input_int_len != arg_count) {
+		printf(\"{\\"error\\": \\"must provide as many inputs as there are arguments (%d)\\",\\"code\\":1}\", arg_count);
+        exit(1);
+    }
 	int *input = parse_input(argv[2], input_int_len);
+
+{% else %}
+	//Input auto generated
+	int input_int_len = {{ arg_count }};
+	int *input = parse_input("{{ inputstr }}", input_int_len);
+
+{% endif %}
+
 	int *output = (int*)calloc(input_int_len, sizeof(int));
 	struct timespec start = {.tv_nsec = 0, .tv_sec = 0};
   	struct timespec end = {.tv_nsec = 0, .tv_sec = 0};

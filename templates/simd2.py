@@ -2,7 +2,7 @@
 template = {
 	"compiler_prefix": ["clang", "-O3", "-Wall", "-mavx", "-mavx2", "-msse", "-g", "-pedantic"],
 	"program_output": "prog.c",
-	"name": "simd1",
+	"name": "simd2",
 
 	"template": """
 #include <immintrin.h>
@@ -10,7 +10,6 @@ template = {
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 const int arg_count = {{ arg_count }};
 // static const __m128i quadmask = {0xffffffffffffffff, 0xffffffffffffffff};
 // static const __m256i octmask = {0xffffffffffffffff, 0xffffffffffffffff,
@@ -71,21 +70,29 @@ float *parse_input(char* input, int parsed_len) {
 void permute(float *in, float *out) {
 {{ permute_gen }}}
 
+
 int main(int argc, char **argv) {
-	if (argc != 3) {
-		printf("{\\"error\\": \\"2 arguments required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}");
-		exit(1);
-	}
+{% if not inputstr %}
+    if (argc != 3) {
+		printf(\"{\\"error\\": \\"2 arguments required, the program call name, the number of values (as an integer), and the list of values, comma separated.\\",\\"code\\":1}\");
+        exit(1);
+    }
 
-	char *none;
-  	int input_int_len = strtol(argv[1], &none, 10);
+    char *none;
+    int input_int_len = strtol(argv[1], &none, 10);
 
-	if (input_int_len != arg_count) {
-		printf("{\\"error\\": \\"must provide as many inputs as there are arguments (%d)\\",\\"code\\":1}", arg_count);
-		exit(1);
-	}
-
+    if (input_int_len != arg_count) {
+		printf(\"{\\"error\\": \\"must provide as many inputs as there are arguments (%d)\\",\\"code\\":1}\", arg_count);
+        exit(1);
+    }
 	float *input = parse_input(argv[2], input_int_len);
+
+{% else %}
+	//Input auto generated
+	int input_int_len = {{ arg_count }};
+	float *input = parse_input("{{ inputstr }}", input_int_len);
+
+{% endif %}
 	float *output = (float*)calloc(input_int_len, sizeof(float));
 	struct timespec start = {.tv_nsec = 0, .tv_sec = 0};
   	struct timespec end = {.tv_nsec = 0, .tv_sec = 0};
