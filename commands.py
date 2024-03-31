@@ -147,6 +147,9 @@ def generate_rand(template: str, output: str, arg_count: int, asm: bool, omp: bo
 		for i in list(range(1, arg_count+1)):
 			numstr += f"{i},"
 	numstr = numstr.removesuffix(",")
+
+	print(f"pattern: {numstr}")
+
 	generate(numstr, template, output, asm, omp)
 
 def run(input: str, args: [int]):
