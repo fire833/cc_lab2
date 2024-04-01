@@ -15,6 +15,10 @@ pub struct BruteforcerArgs {
     #[arg(long, short, value_delimiter = ',')]
     pub pattern: Option<Vec<u32>>,
 
+    /// Length of random pattern
+    #[arg(short, long, default_value_t = 50)]
+    pub len: u32,
+
     #[arg(long, short, default_value_t = String::from("amd64"))]
     pub arch: String,
 }
@@ -29,4 +33,10 @@ pub enum BruteforcerCmds {
     /// optimization of blocks, and print in original ordering.
     #[command(alias = "simplec")]
     SimpleCFunc,
+
+    /// Generate a random pattern of specified length, and
+    /// tries to create a pattern that contains subsets that can
+    /// be SIMDized.
+    #[command(alias = "randpat")]
+    RandomPattern,
 }

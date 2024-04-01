@@ -68,5 +68,8 @@ fn main() {
                 println!("please provide a pattern to generate a corresponding C function body")
             }
         }
+        BruteforcerCmds::RandomPattern => {
+            println!("{}\n", ShiftMask::new_random(args.len));
+        }
     }
 }

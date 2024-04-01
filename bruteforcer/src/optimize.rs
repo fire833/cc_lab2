@@ -1,4 +1,6 @@
-use std::collections::VecDeque;
+use std::{collections::VecDeque, fmt::Display};
+
+use rand::Rng;
 
 use crate::abstract_instructions::{
     eight::EightInstruction, four::FourInstruction, single::SingleInstruction,
@@ -17,10 +19,89 @@ impl From<Vec<u32>> for ShiftMask {
     }
 }
 
+impl Display for ShiftMask {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for (i, val) in self.values.iter().enumerate() {
+            if i < self.values.len() - 1 {
+                if let Err(e) = write!(f, "{},", *val) {
+                    return Err(e);
+                }
+            } else {
+                if let Err(e) = write!(f, "{}", *val) {
+                    return Err(e);
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
 impl ShiftMask {
     #[allow(unused)]
     const fn new(values: Vec<u32>) -> Self {
         Self { values }
+    }
+
+    pub fn new_random(len: u32) -> Self {
+        let mut dst_set: Vec<u32> = vec![];
+        let mut src_set: Vec<u32> = (0 as u32..len as u32).collect();
+
+        while src_set.len() > 0 {
+            let len = src_set.len();
+
+            match rand::thread_rng().gen_range(1..=4) {
+                1 => dst_set.push(src_set.remove(rand::thread_rng().gen_range(0..=len - 1))),
+                2 => {
+                    let base_index = rand::thread_rng().gen_range(0..=len - 1);
+                    if len >= 4 && len - base_index >= 4 {
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                    }
+                }
+
+                3 => {
+                    let base_index = rand::thread_rng().gen_range(0..=len - 1);
+                    if len >= 8 && len - base_index >= 8 {
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                    }
+                }
+
+                4 => {
+                    let base_index = rand::thread_rng().gen_range(0..=len - 1);
+                    if len >= 16 && len - base_index >= 16 {
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                        dst_set.push(src_set.remove(base_index));
+                    }
+                }
+                _ => continue,
+            }
+        }
+
+        Self { values: dst_set }
     }
 
     pub fn len(&self) -> usize {

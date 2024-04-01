@@ -10,3 +10,4 @@ author = "Kendall Tauser"
 clap = { version = "4.5.3", features = ["derive"] }
 itertools = "0.12.1"
 libc = "0.2.153"
+rand = "0.8.5"
