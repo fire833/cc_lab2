@@ -83,7 +83,7 @@ __host__ int main(int argc, char **argv) {
   	int input_int_len = strtol(argv[1], &none, 10);
 
 	if (input_int_len != arg_count) {
-		printf("{\\"error\\": \\"must provide as many inputs as there are arguments (%d)\\",\\"code\\":1}", arg_count);
+		printf("{\\"error\\": \\"must provide as many inputs as there are arguments (%d vs %d provided)\\",\\"code\\":1}", arg_count, input_int_len);
 		exit(1);
 	}
 

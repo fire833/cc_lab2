@@ -133,7 +133,15 @@ def run(input: str, args: [int]):
 	for i in args:
 		parsed += f"{i},"
 
-	return json.loads(subprocess.run([input, str(len(args)), parsed.rstrip(",")], capture_output=True).stdout.decode()) 
+	data = [input, str(len(args)), parsed.rstrip(",")]
+	# print(data)
+	proc = subprocess.run(data, capture_output=True)
+	if proc.returncode != 0:
+		print(f"stderr: {proc.stderr.decode()}")
+		print(f"stdout: {proc.stdout.decode()}")
+		exit(1)
+
+	return json.loads(proc.stdout.decode()) 
 
 def run_rand(inputprog: str, iterations: int, arg_count: int):
 	values = [i for i in range(arg_count)]
