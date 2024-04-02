@@ -7,6 +7,7 @@ import os
 import random
 import csv
 import json
+from patterns import patterns
 from templates.base1 import template as tmplbase1
 from templates.base2 import template as tmplbase2
 from templates.asm import template as tmplasm
@@ -44,6 +45,7 @@ def new_parser():
 	rrand.set_defaults(func=run_rand)
 	rrprt = sub.add_parser("runbench")
 	rrprt.add_argument("--input", help="Provide a path to the generated program to execute.", type=str, default="benchmarks", dest="input")
+	rrprt.add_argument("--output", help="Specify the output file location for your benchmark data frame results.", type=str, default="results.csv", dest="output") 
 	rtest = sub.add_parser("runtests")
 
 	return p
@@ -64,7 +66,7 @@ def runner(args: ArgumentParser):
 		print(outputs)
 	elif sys.argv[1] == "runbench":
 		print("running reporting")
-		bench(args.input)
+		bench(args.input, args.output)
 	elif sys.argv[1] == "runtests":
 		print("running tests")
 		return run_tests([])
@@ -76,6 +78,12 @@ templates = {
 	"cuda1": tmplcuda1,
 	"cuda2": tmplcuda2,
 	"simd1": tmplsimd1,
+	"simd2": tmplsimd2,
+}
+
+benchplates = {
+	"base2": tmplbase2,
+	"cuda2": tmplcuda2,
 	"simd2": tmplsimd2,
 }
 
@@ -153,14 +161,16 @@ def run_rand(inputprog: str, iterations: int, arg_count: int):
 
 	return outputs
 
-def bench(outDir: str):
-	patterns = ["3,2,1,0"]
+def bench(outDir: str, outFile: str):
+	results = np.array()
 
-	for tmpl in templates:
-		for pattern in patterns:
-			name = tmpl[name] + "_" + tmpl[program_output]
-			outStr = f"{outDir}/{name}"
-			generate(pattern, tmpl, outStr, False, False)
+	for tmpl in benchplates:
+		for arg_count, patternset in patterns.items():
+			for pattern in patternset:
+				name = tmpl[name] + "_" + tmpl[program_output]
+				outStr = f"{outDir}/{name}"
+				generate(pattern, tmpl, outStr, False, False)
+				np.append(results, run_rand(outStr, 2500, arg_count))
 
 def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
 	for tmpl in tmplversions:

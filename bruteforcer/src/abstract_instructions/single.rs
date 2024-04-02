@@ -4,7 +4,11 @@ use crate::encodings::{Architecture, CEncoder, SerializeAMD64MachineCode};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SingleInstruction {
+    /// The index in the source array where our runtime value is
+    /// found.
     pub index: u32,
+    /// The index in the destination array where our runtime value
+    /// should be stored.
     pub value: u32,
 }
 
@@ -22,7 +26,7 @@ impl Debug for SingleInstruction {
 
 impl CEncoder for SingleInstruction {
     fn encode_to_c(&self, _index: u32, _arch: Architecture) -> String {
-        format!("  out[{}] = in[{}];\n", self.index, self.value)
+        format!("  out[{}] = in[{}];\n", self.value, self.index)
     }
 }
 

@@ -63,20 +63,20 @@ impl FourInstruction {
     const fn get_first_output_index(&self) -> u32 {
         let mut smallest = u32::MAX;
 
-        if self.value1.index < smallest {
-            smallest = self.value1.index;
+        if self.value1.value < smallest {
+            smallest = self.value1.value;
         }
 
-        if self.value2.index < smallest {
-            smallest = self.value2.index;
+        if self.value2.value < smallest {
+            smallest = self.value2.value;
         }
 
-        if self.value3.index < smallest {
-            smallest = self.value3.index;
+        if self.value3.value < smallest {
+            smallest = self.value3.value;
         }
 
-        if self.value4.index < smallest {
-            smallest = self.value4.index;
+        if self.value4.value < smallest {
+            smallest = self.value4.value;
         }
 
         smallest
@@ -86,10 +86,10 @@ impl FourInstruction {
         let first_out = self.get_first_output_index();
         let mut i: i32 = 0;
 
-        i |= ((self.value4.index - first_out) as i32) << 6;
-        i |= ((self.value3.index - first_out) as i32) << 4;
-        i |= ((self.value2.index - first_out) as i32) << 2;
-        i |= (self.value1.index - first_out) as i32;
+        i |= ((self.value4.value - first_out) as i32) << 6;
+        i |= ((self.value3.value - first_out) as i32) << 4;
+        i |= ((self.value2.value - first_out) as i32) << 2;
+        i |= (self.value1.value - first_out) as i32;
         i
     }
 }
@@ -113,14 +113,14 @@ impl CEncoder for FourInstruction {
 
                 format!(
                     "  __m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
-          __m128 valout{} = _mm_permute_ps(valin{}, {});
-          _mm_store_ps(&out[{}], valout{});
+  __m128 valout{} = _mm_permute_ps(valin{}, {});
+  _mm_store_ps(&out[{}], valout{});
         ",
                     index,
-                    self.value1.value,
-                    self.value2.value,
-                    self.value3.value,
-                    self.value4.value,
+                    self.value1.index,
+                    self.value2.index,
+                    self.value3.index,
+                    self.value4.index,
                     index,
                     index,
                     mask,

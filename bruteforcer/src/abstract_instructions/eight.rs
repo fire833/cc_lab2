@@ -36,36 +36,36 @@ impl EightInstruction {
     const fn get_first_output_index(&self) -> u32 {
         let mut smallest = u32::MAX;
 
-        if self.value1.value1.index < smallest {
-            smallest = self.value1.value1.index;
+        if self.value1.value1.value < smallest {
+            smallest = self.value1.value1.value;
         }
 
-        if self.value1.value2.index < smallest {
-            smallest = self.value1.value2.index;
+        if self.value1.value2.value < smallest {
+            smallest = self.value1.value2.value;
         }
 
-        if self.value1.value3.index < smallest {
-            smallest = self.value1.value3.index;
+        if self.value1.value3.value < smallest {
+            smallest = self.value1.value3.value;
         }
 
-        if self.value1.value4.index < smallest {
-            smallest = self.value1.value4.index;
+        if self.value1.value4.value < smallest {
+            smallest = self.value1.value4.value;
         }
 
-        if self.value2.value1.index < smallest {
-            smallest = self.value2.value1.index;
+        if self.value2.value1.value < smallest {
+            smallest = self.value2.value1.value;
         }
 
-        if self.value2.value2.index < smallest {
-            smallest = self.value2.value2.index;
+        if self.value2.value2.value < smallest {
+            smallest = self.value2.value2.value;
         }
 
-        if self.value2.value3.index < smallest {
-            smallest = self.value2.value3.index;
+        if self.value2.value3.value < smallest {
+            smallest = self.value2.value3.value;
         }
 
-        if self.value2.value4.index < smallest {
-            smallest = self.value2.value4.index;
+        if self.value2.value4.value < smallest {
+            smallest = self.value2.value4.value;
         }
 
         smallest
@@ -75,14 +75,14 @@ impl EightInstruction {
         let first_out = self.get_first_output_index();
         let mut i: (i64, i64, i64, i64) = (0, 0, 0, 0);
 
-        i.0 |= ((self.value1.value2.index + first_out) as i64) << 32;
-        i.0 |= (self.value1.value1.index + first_out) as i64;
-        i.1 |= ((self.value1.value4.index + first_out) as i64) << 32;
-        i.1 |= (self.value1.value3.index + first_out) as i64;
-        i.2 |= ((self.value2.value2.index + first_out) as i64) << 32;
-        i.2 |= (self.value2.value1.index + first_out) as i64;
-        i.3 |= ((self.value2.value4.index + first_out) as i64) << 32;
-        i.3 |= (self.value2.value3.index + first_out) as i64;
+        i.3 |= ((self.value1.value4.value - first_out) as i64) << 32;
+        i.3 |= (self.value1.value3.value - first_out) as i64;
+        i.2 |= ((self.value1.value2.value - first_out) as i64) << 32;
+        i.2 |= (self.value1.value1.value - first_out) as i64;
+        i.1 |= ((self.value2.value1.value - first_out) as i64) << 32;
+        i.1 |= (self.value2.value2.value - first_out) as i64;
+        i.0 |= ((self.value2.value3.value - first_out) as i64) << 32;
+        i.0 |= (self.value2.value4.value - first_out) as i64;
 
         i
     }
@@ -103,19 +103,19 @@ impl CEncoder for EightInstruction {
 
                 format!(
                     "  __m256 valin{} = {{in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}], in[{}]}};
-          static const __m256i mask{} = {{{}, {}, {}, {}}};
-          __m256 valout{} = _mm256_permutevar8x32_ps(valin{}, mask{});
-          _mm256_storeu_ps(&out[{}], valout{});
+  static const __m256i mask{} = {{{}, {}, {}, {}}};
+  __m256 valout{} = _mm256_permutevar8x32_ps(valin{}, mask{});
+  _mm256_storeu_ps(&out[{}], valout{});
         ",
                     index,
-                    self.value1.value1.value,
-                    self.value1.value2.value,
-                    self.value1.value3.value,
-                    self.value1.value4.value,
-                    self.value2.value1.value,
-                    self.value2.value2.value,
-                    self.value2.value3.value,
-                    self.value2.value4.value,
+                    self.value1.value1.index,
+                    self.value1.value2.index,
+                    self.value1.value3.index,
+                    self.value1.value4.index,
+                    self.value2.value1.index,
+                    self.value2.value2.index,
+                    self.value2.value3.index,
+                    self.value2.value4.index,
                     index,
                     mask.0,
                     mask.1,
