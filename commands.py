@@ -8,6 +8,7 @@ import random
 import csv
 import json
 from patterns import patterns
+import matplotlib.pyplot as plt
 from templates.base1 import template as tmplbase1
 from templates.base2 import template as tmplbase2
 from templates.asm import template as tmplasm
@@ -162,15 +163,14 @@ def run_rand(inputprog: str, iterations: int, arg_count: int):
 	return outputs
 
 def bench(outDir: str, outFile: str):
-	results = np.array()
-
-	for tmpl in benchplates:
+	for name, tmpl in benchplates.items():
 		for arg_count, patternset in patterns.items():
-			for pattern in patternset:
-				name = tmpl[name] + "_" + tmpl[program_output]
+			for i, pattern in enumerate(patternset):
+				print(f"running template {name} arg_count {arg_count} pattern {i}...")
+				pname = name + "_" + str(arg_count) + "_" + str(i) + "_" + tmpl["program_output"]
 				outStr = f"{outDir}/{name}"
-				generate(pattern, tmpl, outStr, False, False)
-				np.append(results, run_rand(outStr, 2500, arg_count))
+				generate(pattern, name, outStr, False, False)
+				values = run_rand(outStr, 2500, arg_count)
 
 def run_report(patterns: [(str, int)], tmplversions: [str], output: str):
 	for tmpl in tmplversions:
