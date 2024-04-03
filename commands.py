@@ -8,7 +8,6 @@ import random
 import csv
 import json
 from patterns import patterns
-import pandas
 from templates.base1 import template as tmplbase1
 from templates.base2 import template as tmplbase2
 from templates.asm import template as tmplasm
@@ -169,7 +168,9 @@ def run_rand_once(input_prog: str, arg_count: int, args: [int]):
 	return run(input_prog, args)
 
 def bench(outDir: str, outFile: str):
-	results = {}
+	file = open(outFile, "w")
+	results = csv.writer(file, delimiter=",")
+	results.writerow(["compute_time", "template_name", "arg_count", "pattern_number", "iteration_number"])
 
 	for name, tmpl in benchplates.items():
 		for arg_count, patternset in patterns.items():
@@ -180,9 +181,10 @@ def bench(outDir: str, outFile: str):
 				print(f"running template {name} arg_count {arg_count} pattern {i} at {output}...")
 				generate(pattern, name, outbin, output, False, False)
 				values = run_rand(outbin, 500, arg_count)
-				results[pname] = values
-
-		pandas.DataFrame(results).to_csv(name + "_" + outFile, index=False)
+				for ith, value in enumerate(values):
+					results.writerow([value, name, arg_count, i, ith])
+	
+	file.close()
 
 def run_tests(tmplversions: [str]):
 	for name, tmpl in templates.items():
