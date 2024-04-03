@@ -82,14 +82,69 @@ impl FourInstruction {
         smallest
     }
 
-    const fn get_permute_mask(&self) -> i32 {
-        let first_out = self.get_first_output_index();
-        let mut i: i32 = 0;
+    const fn get_first_input_index(&self) -> u32 {
+        let mut smallest = u32::MAX;
 
-        i |= ((self.value4.value - first_out) as i32) << 6;
-        i |= ((self.value3.value - first_out) as i32) << 4;
-        i |= ((self.value2.value - first_out) as i32) << 2;
-        i |= (self.value1.value - first_out) as i32;
+        if self.value1.index < smallest {
+            smallest = self.value1.index;
+        }
+
+        if self.value2.index < smallest {
+            smallest = self.value2.index;
+        }
+
+        if self.value3.index < smallest {
+            smallest = self.value3.index;
+        }
+
+        if self.value4.index < smallest {
+            smallest = self.value4.index;
+        }
+
+        smallest
+    }
+
+    const fn get_permute_mask(&self) -> u8 {
+        let first_out = self.get_first_output_index();
+        let mut i: u8 = 0;
+
+        let v1 = (self.value1.value - first_out) as i32;
+        let v2 = (self.value2.value - first_out) as i32;
+        let v3 = (self.value3.value - first_out) as i32;
+        let v4 = (self.value4.value - first_out) as i32;
+
+        match v1 {
+            0 => i |= 0,
+            1 => i |= 1,
+            2 => i |= 2,
+            3 => i |= 3,
+            _ => {}
+        }
+
+        match v2 {
+            0 => i |= 0 << 2,
+            1 => i |= 1 << 2,
+            2 => i |= 2 << 2,
+            3 => i |= 3 << 2,
+            _ => {}
+        }
+
+        match v3 {
+            0 => i |= 0 << 4,
+            1 => i |= 1 << 4,
+            2 => i |= 2 << 4,
+            3 => i |= 3 << 4,
+            _ => {}
+        }
+
+        match v4 {
+            0 => i |= 0 << 6,
+            1 => i |= 1 << 6,
+            2 => i |= 2 << 6,
+            3 => i |= 3 << 6,
+            _ => {}
+        }
+
         i
     }
 }
@@ -108,24 +163,16 @@ impl CEncoder for FourInstruction {
     fn encode_to_c(&self, index: u32, arch: Architecture) -> String {
         match &arch {
             Architecture::Amd64 => {
-                let smallest: u32 = self.get_first_output_index();
-                let mask: i32 = self.get_permute_mask();
+                let smallest_in: u32 = self.get_first_input_index();
+                let smallest_out: u32 = self.get_first_output_index();
+                let mask: u8 = self.get_permute_mask();
 
                 format!(
-                    "  __m128 valin{} = {{in[{}], in[{}], in[{}], in[{}]}};
+                    "  __m128 valin{} = _mm_maskload_ps(&in[{}], quadmask);
   __m128 valout{} = _mm_permute_ps(valin{}, {});
-  _mm_store_ps(&out[{}], valout{});
-        ",
-                    index,
-                    self.value1.index,
-                    self.value2.index,
-                    self.value3.index,
-                    self.value4.index,
-                    index,
-                    index,
-                    mask,
-                    smallest,
-                    index
+  _mm_maskstore_ps(&out[{}], quadmask, valout{});
+",
+                    index, smallest_in, index, index, mask, smallest_out, index
                 )
             }
             Architecture::Arm => format!(""),

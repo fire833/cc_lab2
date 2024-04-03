@@ -12,9 +12,9 @@ template = {
 #include <time.h>
 
 const int arg_count = {{ arg_count }};
-// static const __m128i quadmask = {0xffffffffffffffff, 0xffffffffffffffff};
-// static const __m256i octmask = {0xffffffffffffffff, 0xffffffffffffffff,
-//                                 0xffffffffffffffff, 0xffffffffffffffff};
+static const __m128i quadmask = {0xffffffffffffffff, 0xffffffffffffffff};
+static const __m256i octmask = {0xffffffffffffffff, 0xffffffffffffffff,
+                                0xffffffffffffffff, 0xffffffffffffffff};
 
 float *parse_input(char* input, int parsed_len) {
 	int index = 0;

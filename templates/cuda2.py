@@ -11,7 +11,7 @@ template = {
 #include <time.h>
 
 const int arg_count = {{ arg_count }};
-static const int mask_host[{{ arg_count }}] = { {% for val in values %}{{val[1]}}{% if not values|last == val %}, {% endif %}{% endfor %} }; 
+__device__ __constant__ int mask[{{ arg_count }}] = { {% for val in values %}{{val[1]}}{% if not values|last == val %}, {% endif %}{% endfor %} }; 
 
 inline int *parse_input(char* input, int parsed_len) {
 	int index = 0;
@@ -66,7 +66,7 @@ inline int *parse_input(char* input, int parsed_len) {
 }
 
 // Kernel to permute values
-__global__ void permute_array(int *in, int* mask, int *out) {
+__global__ void permute_array(int *in, int *out) {
     unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
     if (index < arg_count) {
         out[mask[index]] = in[index];
@@ -90,17 +90,13 @@ __host__ int main(int argc, char **argv) {
     int *input_host = parse_input(argv[2], input_int_len);
     int *output_host = (int*)calloc(input_int_len, sizeof(int));
     int *input_gpu;
-    int *mask_gpu;
     int *output_gpu;
 
     cudaMalloc((void**) &input_gpu, input_int_len * sizeof(int));
-    cudaMalloc((void**) &mask_gpu, input_int_len * sizeof(int));
     cudaMalloc((void**) &output_gpu, input_int_len * sizeof(int));
 
     // Copy data to device
     cudaMemcpy(input_gpu, input_host, input_int_len * sizeof(int), cudaMemcpyHostToDevice);
-    // Copy mask to device
-    cudaMemcpy(mask_gpu, mask_host, input_int_len * sizeof(int), cudaMemcpyHostToDevice);
     
     cudaEvent_t start, stop;
   	cudaEventCreate(&start);
@@ -108,7 +104,7 @@ __host__ int main(int argc, char **argv) {
     
 	cudaEventRecord(start);
     
-	permute_array<<<1, input_int_len>>>(input_gpu, mask_gpu, output_gpu);
+	permute_array<<<1, input_int_len>>>(input_gpu, output_gpu);
 	
 	cudaEventRecord(stop);
     cudaEventSynchronize(stop);
@@ -129,9 +125,8 @@ __host__ int main(int argc, char **argv) {
 
 	printf("\\"compute\\": %d, \\"code\\": 0}\\n", (int) (milliseconds * 1000));
 
-    cudaFree(&input_gpu);
-    cudaFree(&output_gpu);
-    cudaFree(&mask_gpu);
+    cudaFree(input_gpu);
+    cudaFree(output_gpu);
     free(input_host);
     free(output_host);
 }

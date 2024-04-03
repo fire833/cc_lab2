@@ -77,11 +77,11 @@ def runner(args: ArgumentParser):
 templates = {
 	"base1": tmplbase1,
 	"base2": tmplbase2,
+	"simd1": tmplsimd1,
+	"simd2": tmplsimd2,
 	# "asm1": tmplasm,
 	"cuda1": tmplcuda1,
 	"cuda2": tmplcuda2,
-	"simd1": tmplsimd1,
-	"simd2": tmplsimd2,
 }
 
 benchplates = {
@@ -155,15 +155,18 @@ def run(input: str, args: [int]):
 
 	return json.loads(proc.stdout.decode()) 
 
-def run_rand(inputprog: str, iterations: int, arg_count: int):
+def run_rand(input_prog: str, iterations: int, arg_count: int):
 	values = [i for i in range(arg_count)]
 	outputs = []
 	
 	for i in range(iterations):
-		out = run(inputprog, values)
+		out = run_rand_once(input_prog, values, values)
 		outputs.append(out["compute"])
 
 	return outputs
+
+def run_rand_once(input_prog: str, arg_count: int, args: [int]):
+	return run(input_prog, args)
 
 def bench(outDir: str, outFile: str):
 	results = {}
@@ -176,38 +179,29 @@ def bench(outDir: str, outFile: str):
 				outbin = f"{outDir}/prog"
 				print(f"running template {name} arg_count {arg_count} pattern {i} at {output}...")
 				generate(pattern, name, outbin, output, False, False)
-				values = run_rand(outbin, 2500, arg_count)
+				values = run_rand(outbin, 500, arg_count)
 				results[pname] = values
 
 		pandas.DataFrame(results).to_csv(name + "_" + outFile, index=False)
 
-def write_csv(outputs, output: str):
-	f = open(output, "w")
-	f.write("TIMINGS\n")
-	for out in outputs:
-		if out["compute"]:
-			v = out["compute"]
-			f.write(f"{v}\n")
-
-	f.close()
-
 def run_tests(tmplversions: [str]):
-	tests = [
-		("0,1 2,3", [1,2,3,4], [21]),
-		("0,1", [1,2,3,4,5,6], [3, 5, 7, 9, 11]),
-	]
+	for name, tmpl in templates.items():
+		for arg_count, patternset in patterns.items():
+			for i, pattern in enumerate(patternset):
+				expected = [int(arg) for arg in pattern.split(",")]
 
-	for tmpl in tmplversions:
-		for (i, test) in enumerate(tests):
-			tOut = f"tests/test{i}_{tmpl}"
-			generate(test[0], tmpl, f"tests/test{i}_{tmpl}.c", tOut, "gcc", False, False, 512)
-			res = run(tOut, test[1])
-			if not res["values"]:
-				print(f"test {i} failed: no values outputs")
-			else:
-				outputArr = np.array(res["values"])
-				expectedArr = np.array(test[2])
-				if (np.array_equal(outputArr, expectedArr)):
-					print(f"test {i} passed")
+				pname = name + "_" + str(arg_count) + "_" + str(i) + "_" + tmpl["program_output"]
+				output = f"tests/{pname}"
+				outbin = f"tests/prog"
+
+				# print(f"running template {name} arg_count {arg_count} pattern {i} at {output}...")
+				generate(pattern, name, outbin, output, False, False)
+				found = np.array(run_rand_once(outbin, arg_count, [i for i in range(arg_count)])["values"])
+
+				print(f"expected: {expected}")
+				print(f"found: {found }")
+
+				if (np.array_equal(found, expected)):
+					print(f"test {pname} passed")
 				else:
-					print(f"test {i} failed, comparison inequality")
+					print(f"test {pname} failed, comparison inequality")

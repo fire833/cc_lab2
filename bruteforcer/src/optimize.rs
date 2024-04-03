@@ -1,6 +1,7 @@
 use std::{collections::VecDeque, fmt::Display};
 
 use rand::Rng;
+use rand::{seq::SliceRandom, thread_rng};
 
 use crate::abstract_instructions::{
     eight::EightInstruction, four::FourInstruction, single::SingleInstruction,
@@ -55,46 +56,61 @@ impl ShiftMask {
                 2 => {
                     let base_index = rand::thread_rng().gen_range(0..=len - 1);
                     if len >= 4 && len - base_index >= 4 {
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
+                        let mut loc_vec = vec![];
+
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+
+                        loc_vec.shuffle(&mut thread_rng());
+                        dst_set.append(&mut loc_vec);
                     }
                 }
 
                 3 => {
                     let base_index = rand::thread_rng().gen_range(0..=len - 1);
                     if len >= 8 && len - base_index >= 8 {
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
+                        let mut loc_vec = vec![];
+
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+
+                        loc_vec.shuffle(&mut thread_rng());
+                        dst_set.append(&mut loc_vec);
                     }
                 }
 
                 4 => {
                     let base_index = rand::thread_rng().gen_range(0..=len - 1);
                     if len >= 16 && len - base_index >= 16 {
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
-                        dst_set.push(src_set.remove(base_index));
+                        let mut loc_vec = vec![];
+
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+                        loc_vec.push(src_set.remove(base_index));
+
+                        loc_vec.shuffle(&mut thread_rng());
+                        dst_set.append(&mut loc_vec);
                     }
                 }
                 _ => continue,

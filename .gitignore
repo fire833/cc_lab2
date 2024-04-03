@@ -9,3 +9,4 @@ test
 .gdb_history
 benchmarks
 outputs
+tests

@@ -39,4 +39,8 @@ pub enum BruteforcerCmds {
     /// be SIMDized.
     #[command(alias = "randpat")]
     RandomPattern,
+
+    /// Generate an input sequence of form 0,1,2,3,4 ... n - 1.
+    #[command(alias = "inputseq")]
+    InputSequence,
 }

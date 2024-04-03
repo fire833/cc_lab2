@@ -1,9 +1,10 @@
-use std::process::exit;
+use std::{io::stderr, process::exit};
 
 use args::BruteforcerCmds;
 use clap::Parser;
 use encodings::Architecture;
 use itertools::Itertools;
+use libc::fprintf;
 use playground::Playground;
 
 use crate::{
@@ -62,6 +63,7 @@ fn main() {
                 let blocks = mask.optimize_to_blocks(255);
 
                 for (i, block) in blocks.iter().enumerate() {
+                    eprint!("{:?}", block);
                     print!("{}", block.encode_to_c(i as u32, arch));
                 }
             } else {
@@ -70,6 +72,14 @@ fn main() {
         }
         BruteforcerCmds::RandomPattern => {
             println!("{}\n", ShiftMask::new_random(args.len));
+        }
+        BruteforcerCmds::InputSequence => {
+            for i in 0..args.len {
+                print!("{}", i);
+                if i < args.len - 1 {
+                    print!(",");
+                }
+            }
         }
     }
 }

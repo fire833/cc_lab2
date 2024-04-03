@@ -65,7 +65,7 @@ int *parse_input(char* input, int parsed_len) {
 }
 
 void permute(int *in, int *out) {
-	{% for val in values %}out[{{ val[0] }}] = in[{{ val[1] }}];
+	{% for val in values %}out[{{ val[1] }}] = in[{{ val[0] }}];
 	{% endfor %}
 }
 
