@@ -8,7 +8,7 @@ import random
 import csv
 import json
 from patterns import patterns
-import matplotlib.pyplot as plt
+import pandas
 from templates.base1 import template as tmplbase1
 from templates.base2 import template as tmplbase2
 from templates.asm import template as tmplasm
@@ -86,8 +86,8 @@ templates = {
 
 benchplates = {
 	"base2": tmplbase2,
-	"cuda2": tmplcuda2,
 	"simd2": tmplsimd2,
+	"cuda2": tmplcuda2,
 }
 
 def generate(pattern: str, template: str, binout: str, output: str, asm: bool, omp: bool):
@@ -113,7 +113,7 @@ def generate(pattern: str, template: str, binout: str, output: str, asm: bool, o
 	f.write(t.render(arg_count=arg_count, values=values, permute_gen=permute_gen))
 	f.close()
 
-	args = templates[template]["compiler_prefix"]
+	args = templates[template]["compiler_prefix"].copy()
 	args.append("-o")
 	args.append(binout)
 	if omp:
@@ -125,7 +125,7 @@ def generate(pattern: str, template: str, binout: str, output: str, asm: bool, o
 		args.pop(len(args) - 1)
 
 	args.append(output)
-	print("compiling program")
+	print(f"compiling program: {args}")
 	subprocess.run(args)
 
 def rand_pattern(arg_count: int):
@@ -166,6 +166,8 @@ def run_rand(inputprog: str, iterations: int, arg_count: int):
 	return outputs
 
 def bench(outDir: str, outFile: str):
+	results = {}
+
 	for name, tmpl in benchplates.items():
 		for arg_count, patternset in patterns.items():
 			for i, pattern in enumerate(patternset):
@@ -175,6 +177,9 @@ def bench(outDir: str, outFile: str):
 				print(f"running template {name} arg_count {arg_count} pattern {i} at {output}...")
 				generate(pattern, name, outbin, output, False, False)
 				values = run_rand(outbin, 2500, arg_count)
+				results[pname] = values
+
+		pandas.DataFrame(results).to_csv(name + "_" + outFile, index=False)
 
 def write_csv(outputs, output: str):
 	f = open(output, "w")
