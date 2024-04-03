@@ -79,9 +79,9 @@ templates = {
 	"base2": tmplbase2,
 	"simd1": tmplsimd1,
 	"simd2": tmplsimd2,
-	# "asm1": tmplasm,
 	"cuda1": tmplcuda1,
 	"cuda2": tmplcuda2,
+	# "asm1": tmplasm,
 }
 
 benchplates = {
@@ -188,7 +188,11 @@ def run_tests(tmplversions: [str]):
 	for name, tmpl in templates.items():
 		for arg_count, patternset in patterns.items():
 			for i, pattern in enumerate(patternset):
-				expected = [int(arg) for arg in pattern.split(",")]
+				pat = [int(arg) for arg in pattern.split(",")]
+				tmp = [v for v in range(arg_count)]
+				expected = [v for v in range(arg_count)]
+				for b in range(arg_count):
+					expected[pat[b]] = tmp[b]
 
 				pname = name + "_" + str(arg_count) + "_" + str(i) + "_" + tmpl["program_output"]
 				output = f"tests/{pname}"
@@ -196,10 +200,11 @@ def run_tests(tmplversions: [str]):
 
 				# print(f"running template {name} arg_count {arg_count} pattern {i} at {output}...")
 				generate(pattern, name, outbin, output, False, False)
+				expected = np.array(expected)
 				found = np.array(run_rand_once(outbin, arg_count, [i for i in range(arg_count)])["values"])
 
-				print(f"expected: {expected}")
-				print(f"found: {found }")
+				# print(f"expected: {expected}")
+				# print(f"found: {found}")
 
 				if (np.array_equal(found, expected)):
 					print(f"test {pname} passed")
