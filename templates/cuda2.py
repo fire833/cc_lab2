@@ -123,7 +123,7 @@ __host__ int main(int argc, char **argv) {
 		}
   	}
 
-	printf("\\"compute\\": %d, \\"code\\": 0}\\n", (int) (milliseconds * 1000));
+	printf("\\"compute\\": %d, \\"code\\": 0}\\n", (int) (milliseconds * 1000000));
 
     cudaFree(input_gpu);
     cudaFree(output_gpu);
